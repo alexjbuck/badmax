@@ -1,0 +1,78 @@
+.fa-edit:hover{
+  color: #007bff;
+  filter:drop-shadow(1px 1px 1px black);
+}
+.fa-trash-alt:hover{
+  color: red;
+  filter:drop-shadow(1px 1px 1px black);
+}
+
+.list-group-item > .fa-edit {
+  display: none;
+  float:right;
+  padding-left:.25em;
+}
+
+.list-group-item:hover > .fa-edit {
+  display: inline-block;
+}
+
+.list-group-item > .fa-trash-alt {
+  display: none;
+  float:right;
+  padding-left:.25em;
+}
+
+.list-group-item:hover > .fa-trash-alt {
+  display: inline-block;
+}
+.graphic-col {
+  padding: 0;
+  margin: 0;
+}
+.list-col {
+  height: 100vh;
+  overflow-y: scroll;
+  padding-top: 100px;
+  padding: 0;
+  padding-bottom: 2em;
+}
+.cycles-col {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+.sorties-col {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+.credit {
+  position: fixed;
+  bottom: 0;
+  margin: 1em;
+  font-size: 0.8em;
+}
+.credit div {
+  margin-inline: 1em;
+}
+.blue-border {
+  border: 2px solid #00bfff4f;
+}
+.blue-border:hover {
+  border: 2px solid #00bfff;
+}
+@font-face {
+  font-family: jarvis;
+  src: url(../webfonts/AvengeroDisassembledRegular-nRvd4.ttf);
+}
+@font-face {
+  font-family: marvel;
+  src: url(../webfonts/MarvelRegular-Dj83.ttf);
+}
+.jarvis {
+  font-family: jarvis;
+  font-size: xx-small;
+}
+.marvel {
+  font-family: marvel;
+  font-size: smaller;
+}

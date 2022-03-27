@@ -1,0 +1,25 @@
+{
+    "name": "airplan",
+    "version": "0.5.1",
+    "description": "Airplan visualization and building",
+    "author": "Alex 'Jarvis' Buck <alexander.j.buck@navy.mil>",
+    "contributors": [
+        "Alex 'Jarvis' Buck <alexander.j.buck@navy.mil>",
+        "Sean Lavelle <sean.m.lavelle6.mil@us.navy.mil>"
+    ],
+    "license": "MIT",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/npm/cli.git"
+    },
+    "homepage": "https://github.com/alexjbuck/airplan#readme",
+    "dependencies": {
+      "jquery": "^3.6.0",
+      "jspdf": "^2.5.0",
+      "file-saver": "^2.0.4",
+      "bootstrap": "^4.0.0",
+      "konva": "^8.3.2",
+      "fontawesome": "^5.15.4"
+    }
+
+}  

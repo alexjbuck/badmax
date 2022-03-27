@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+<head>
+    <title>BadMax</title>
+
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="src/css/font-awesome-all.min.css">
+    <link rel="stylesheet" href="src/css/bootstrap.min.css">
+    <link rel="stylesheet" href="src/css/modal.css">
+    <link rel="stylesheet" href="src/css/styles.css">
+    <link href="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/css/bootstrap4-toggle.min.css" rel="stylesheet">
+
+    <!-- JS Libraries -->
+    <script src="src/libraries/jquery.js"></script>
+    <script src="src/libraries/bootstrap.bundle.min.js"></script>
+    <script src="src/libraries/fileSaver.min.js"></script>
+    <script src="src/libraries/konva.min.js"></script>
+    <script src="src/libraries/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/gitbrent/bootstrap4-toggle@3.6.1/js/bootstrap4-toggle.min.js"></script>
+
+</head>
+<body>
+    <!-- Main View (Graphical + Tabular) -->
+    <div id='view' class='row h-100 w-100 m-0'>
+        <div id="graphic" class="col-md-8 col-12 graphic-col">
+            <div id="graphic-stage" width="100%" height="100%"></div>
+            <!-- submit feedback button, mailto alexander.j.buck@navy.mil -->
+            <div class='credit d-flex flex-wrap'>
+                <div><i>Credit: <a href=mailto:alexander.j.buck@navy.mil>Alexander "Jarvis" Buck</a> and <a href=mailto:sean.m.lavelle6.mil@us.navy.mil>Sean Lavelle</a>.</i></div>
+                <div class='mr-auto'><i>Source code on <a href=https://github.com/alexjbuck/airplan>GitHub</a>. </i></div>
+            </div>
+        </div>
+        <div id="list" class="col-md-4 col-12 list-col">
+            <div id="menu" class='menu'></div>
+            <div id="squadrons" class='squadron-col'></div>
+            <div id="cycles-list" class='cycles-col'></div>
+            <div id="sorties-list" class='sorties-col'></div>
+        </div>
+    </div>
+    
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <!-- Modal content -->
+        <div class="modal-content">
+            <div class='ml-auto'>
+                <span id="closeSpan" class="close">&times;</span>
+            </div>
+            <div id="modalContent" ></div>
+        </div>
+    </div>
+
+    <!-- App Source -->
+    <script src="src/app/modal.js"></script>
+    <script src="src/app/utils.js"></script>
+    <script src="src/app/Archetypes.js"></script>
+    <script src="src/app/Squadron.js"></script>
+    <script src="src/app/Cycle.js"></script>
+    <script src="src/app/Line.js"></script>
+    <script src="src/app/Sortie.js"></script>
+    <script src="src/app/Model.js"></script>
+    <script src="src/app/View.js"></script>
+    <script src="src/app/Controller.js"></script>
+    
+    <!-- Run App -->
+    <script>
+        let app = new Controller()
+    </script>
+</body>
+</html>
