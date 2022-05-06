@@ -74,7 +74,7 @@ class View {
         <h5>For when you don't have ADMACS, <em>and <sup>maybe <sup>even <sup>when <sup>you do!</sup></sup></sup></sup></em></h5>
         </div>
         <div class='ml-auto'>
-        <small>Version: 0.5.1</small>
+        <small>Version: 0.5.2</small>
         </div>
         </div>
         </div>
