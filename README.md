@@ -4,7 +4,7 @@
 
 [![S3 Host](https://github.com/alexjbuck/airplan/actions/workflows/s3sync.yml/badge.svg)](https://airplan.alexjbuck.com/)
 
-Version: 0.5.1
+Version: 0.5.2
 
 Writing airplans in PowerPoint is a big bummer 🤬.
 Never again will you chained to dragging around little lines on the screen ⛓.
