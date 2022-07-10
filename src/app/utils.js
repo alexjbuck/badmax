@@ -68,6 +68,14 @@ Date.prototype.toHHMM = function() {
     return ''+HH+MM
 }
 
+Date.prototype.toZulu = function() {
+    offset = -this.getTimezoneOffset()/60
+    // return the datetime object as HHMM string
+    let HH = this.getHours()-offset < 10 ? '0'+this.getHours-offset : this.getHours()-offset
+    let MM = this.getMinutes() < 10 ? '0'+this.getMinutes() : this.getMinutes()
+    return ''+HH+MM
+}
+
 Konva.Node.prototype.drawBoundingBox = function({stroke='black',strokeWidth=1, name='box', fillEnabled='false', fill='',opacity=1,zIndex=0, minSize=15}={}){
     let x=0,y=0
     if (this.nodeType == 'Shape') {
