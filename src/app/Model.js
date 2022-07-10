@@ -7,20 +7,21 @@ class Model {
      * @method init Initializes the model with default values.
      */
     init() {
-        this._start          = new Date( new Date().setHours(8,0) )
-        this._end            = new Date( new Date().setHours(18,0) )
+        this._start          = new Date( new Date().setHours(8,0,0,0) )
+        this._end            = new Date( new Date().setHours(18,0,0,0) )
         // this._date           = new Date( this.start.valueOf()/2 + this.end.valueOf()/2 )
         this.title           = "Airplan Title";
         this.subtitle        = "Subtitle";
-        this._sunrise        = new Date( new Date().setHours(6,46) )
-        this._sunset         = new Date( new Date().setHours(19,29) )
-        this._moonrise       = new Date( new Date().setHours(10,8) )
-        this._moonset        = new Date( new Date().setHours(4,20) )
+        this._sunrise        = new Date( new Date().setHours(6,46,0,0) )
+        this._sunset         = new Date( new Date().setHours(19,29,0,0) )
+        this._moonrise       = new Date( new Date().setHours(10,8,0,0) )
+        this._moonset        = new Date( new Date().setHours(4,20,0,0) )
         this.moonphase       = "__%";
         this._flightquarters = new Date( new Date() )
         this._heloquarters   = new Date( new Date() )
         this.variation      = "__E/W";
-        this.timezone       = "__(+/-)";
+        this.offset         = this._start.getTimezoneOffset()/-60
+        this.timezone       = 'UTC'+this.offset;
         this.lines          = {};
         this.sorties        = {}
         this.squadrons      = {};
@@ -176,12 +177,14 @@ class Model {
         this.onChange()
         return sortie
     }
-    editSortie(id, start, end, startType, endType, note, startCycleID=null, endCycleID=null, isAlert=false) {
+    editSortie(id, start, end, startType, endType, note, prenote, postnote, startCycleID=null, endCycleID=null, isAlert=false) {
         this.sorties[id].start = start
         this.sorties[id].end = end
         this.sorties[id].startType = startType
         this.sorties[id].endType = endType
         this.sorties[id].note = note
+        this.sorties[id].prenote = prenote
+        this.sorties[id].postnote = postnote
         this.sorties[id].startCycleID = startCycleID
         this.sorties[id].endCycleID = endCycleID
         this.sorties[id].isAlert = isAlert

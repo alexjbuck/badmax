@@ -37,23 +37,30 @@
   padding: 0;
   padding-bottom: 2em;
 }
-.cycles-col {
+.list-col > div {
   margin-top: 1em;
   margin-bottom: 1em;
 }
-.sorties-col {
+/* .sorties-col {
   margin-top: 1em;
   margin-bottom: 1em;
-}
+} */
 .credit {
-  position: fixed;
-  bottom: 0;
+  /* position: absolute; */
+  /* bottom: 0; */
   margin: 1em;
   font-size: 0.8em;
+  height: 4rem;
 }
 .credit div {
   margin-inline: 1em;
 }
+
+.list {
+  min-height: 100vh;
+  position: relative;
+}
+
 .blue-border {
   border: 2px solid #00bfff4f;
 }
@@ -75,4 +82,8 @@
 .marvel {
   font-family: marvel;
   font-size: smaller;
+}
+
+label {
+  margin-bottom: 0;
 }

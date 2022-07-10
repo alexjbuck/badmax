@@ -17,13 +17,14 @@ class View {
         this.rightCol           = 40;
         this.topRow             = 20;
         this.bottomRow          = 20;
+        this.timelineview       = true;
         this.drawMenu();
         this.drawSquadrons();
         $(function () {
             $('[data-toggle="tooltip"]').tooltip()
         })
     }
-    // ASCII Comments generated with: https://patorjk.com/software/taag
+    // ASCII Comments generated with: https://patorjk.com/software/taag with the Big font
     //    __  __                      __      __ _                      
     //   |  \/  |                     \ \    / /(_)                     
     //   | \  / |  ___  _ __   _   _   \ \  / /  _   ___ __      __ ___ 
@@ -47,6 +48,7 @@ class View {
         </div>
         <div class='btn-group menu-group'>
         <button id="help"            class='btn btn-outline-warning' data-toggle='tooltip' data-placement='top' title='Help'>         <i class='fas fa-question-circle'></i></button>
+        <button id="settings"        class='btn btn-outline-primary' data-toggle='tooltip' data-placement='top' title='Settings'>     <i class='fas fa-cog'></i>  </button>
         <button id="feedback"        class='btn btn-outline-success' data-toggle='tooltip' data-placement='top' title='Send Feedback'><i class="fas fa-bullhorn"></i>       </button>
         </div>
         </details>
@@ -61,6 +63,7 @@ class View {
         this.menu.file.export = $('#export')
         this.menu.info.help = $('#help')
         this.menu.info.feedback = $('#feedback')
+        this.menu.settings = $('#settings')
     }
     /**
     * @method drawHelp Draws the help modal dialog.
@@ -74,14 +77,14 @@ class View {
         <h5>For when you don't have ADMACS, <em>and <sup>maybe <sup>even <sup>when <sup>you do!</sup></sup></sup></sup></em></h5>
         </div>
         <div class='ml-auto'>
-        <small>Version: 0.5.2</small>
+        <small>Version: 0.6.0</small>
         </div>
         </div>
         </div>
         <hr>
         <p>
-        Writing airplans in PowerPoint is the worst &#129324;.
-        This is a simple web app that allows you to view and edit your squadron's air plans.
+        Writing airplans in PowerPoint or Excel is a big bummer &#129324;.
+        This is a simple web app that allows you to view and edit your unit's air plans.
         You can add new flights, edit existing flights, and delete flights.
         You can also export your air plan to PDF <i class="far fa-file-pdf"></i>.
         </p>
@@ -94,6 +97,7 @@ class View {
         <li>Add a sortie in the line by clicking "<i class='fas fa-plus'></i> Add Sortie" underneath the desired line.</li>
         <li>Save your airplan by clicking the <i class='fas fa-save'></i> button. This downloads a file that you can load <i class='fas fa-folder-open'></i> to resume your progress.</li>
         <li>Items on the display to the left open edit menu's if they have a <span class='blue-border'>blue border</span> when you hover over them.</li>
+        <li>Set your computer time zone accurately for Local/Zulu time comparison to be accurate.   
         </ol><ul>
         <li><b>Best Practice</b>: Add all of your squadrons, then save your airplan. Use that file as your starting point for the future.</li>
         <li><b>Pro Tip</b>: View these tips anytime by clicking the <i style='color:#ffc107' class='fa fa-question-circle'></i> help icon in the menu.</li>
@@ -160,22 +164,27 @@ class View {
             handler()
         })
     }
+    bindMenuSettings(handler){
+        this.menu.settings.on('click', event=>{
+            handler()
+        })
+    }
 
-  drawSquadrons() {
-    var html =`
-        <details open>
-        <summary class='h3'>Squadrons</summary>
-          <div class='btn-group menu-group'>
-            <button id='add-squadron' class='btn btn-outline-primary add-squadron' data-toggle='tooltip' data-placement='top' title='Add Squadron'>   <i class='fas fa-plus'> </i> Add </button>
-            <button id='rem-squadron' class='btn btn-outline-danger rem-squadron'  data-toggle='tooltip' data-placement='top' title='Remove Squadron'><i class='fas fa-minus'></i> Rem</button>
-          </div>
-        </details>`
-    $('#squadrons').html(html)
-    this.squadron = {}
-    this.squadron.add = $('#add-squadron')
-    this.squadron.rem = $('#rem-squadron')
-  }
-    
+    drawSquadrons() {
+        var html =`
+            <details open>
+            <summary class='h3'>Squadrons</summary>
+            <div class='btn-group menu-group'>
+                <button id='add-squadron' class='btn btn-outline-primary add-squadron' data-toggle='tooltip' data-placement='top' title='Add Squadron'>   <i class='fas fa-plus'> </i> Add </button>
+                <button id='rem-squadron' class='btn btn-outline-danger rem-squadron'  data-toggle='tooltip' data-placement='top' title='Remove Squadron'><i class='fas fa-minus'></i> Rem</button>
+            </div>
+            </details>`
+        $('#squadrons').html(html)
+        this.squadron = {}
+        this.squadron.add = $('#add-squadron')
+        this.squadron.rem = $('#rem-squadron')
+    }
+
     //     _____                           _                      ____   _             _  _                    
     //    / ____|                         | |                    |  _ \ (_)           | |(_)                   
     //   | (___    __ _  _   _   __ _   __| | _ __  ___   _ __   | |_) | _  _ __    __| | _  _ __    __ _  ___ 
@@ -567,10 +576,12 @@ class View {
             let startType = $( "#startType" ).val()
             let endType   = $( "#endType" ).val()
             let note = $( "#note" ).val()
+            let prenote = $( "#prenote" ).val()
+            let postnote = $("#postnote").val()
             let startCycleID = $('.start-on-cycle').prop('checked') ? $('#start-cycle').val() : null
             let endCycleID   = $('.end-on-cycle').prop('checked')   ? $('#end-cycle').val()   : null
             let isAlert = $('#isAlert').prop('checked')
-            handler(lineID, start, end, startType, endType, note, startCycleID, endCycleID, isAlert)
+            handler(lineID, start, end, startType, endType, note, prenote, postnote, startCycleID, endCycleID, isAlert)
             closeModal()
         })
     }
@@ -582,10 +593,12 @@ class View {
             let startType = $( "#startType" ).val()
             let endType   = $( "#endType" ).val()
             let note = $( "#note" ).val()
+            let prenote = $( "#prenote" ).val()
+            let postnote = $("#postnote").val()
             let startCycleID = $('.start-on-cycle').prop('checked') ? $('#start-cycle').val() : null
             let endCycleID = $('.end-on-cycle').prop('checked') ? $('#end-cycle').val() : null
             let isAlert = $('#isAlert').prop('checked')
-            handler(sortieID, start, end, startType, endType, note, startCycleID, endCycleID, isAlert)
+            handler(sortieID, start, end, startType, endType, note, prenote, postnote, startCycleID, endCycleID, isAlert)
             closeModal()
         })
     }
@@ -642,6 +655,7 @@ class View {
         html += `<option value='flyon'>Fly On</option>`;
         html += `<option value='hp'>Hot Pump</option>`;
         html += `<option value='hpcs'>Hot Pump & Crew Swap</option>`;
+        html += `<option value='sto'>Short Take Off</option>`;
         html += `</select>`;
         html += `</div>`;
         // End time
@@ -666,12 +680,23 @@ class View {
         html += `<option value='flyoff'>Fly Off</option>`;
         html += `<option value='hp'>Hot Pump</option>`;
         html += `<option value='hpcs'>Hot Pump & Crew Swap</option>`;
+        html += `<option value='sto'>Short Take Off</option>`;
         html += `</select>`;
         html += `</div>`;
         // note
         html += `<div class='form-group row align-items-center'>`;
         html += `<label for='note' class='col-12 col-md-3 text-left text-md-right'>Note</label>`;
         html += `<input type='text' class='col form-control mr-5' id='note' placeholder='Mission'>`;
+        html += `</div>`;
+        // prenote
+        html += `<div class='form-group row align-items-center'>`;
+        html += `<label for='prenote' class='col-12 col-md-3 text-left text-md-right'>Start Note</label>`;
+        html += `<input type='text' class='col form-control mr-5' id='prenote' placeholder=''>`;
+        html += `</div>`;
+        // postnote
+        html += `<div class='form-group row align-items-center'>`;
+        html += `<label for='postnote' class='col-12 col-md-3 text-left text-md-right'>End Note</label>`;
+        html += `<input type='text' class='col form-control mr-5' id='postnote' placeholder=''>`;
         html += `</div>`;
         // isAlert
         html += `<div class='form-gorup row align-items-center'>`
@@ -754,6 +779,7 @@ class View {
         this.editHeaderSubmit.on('click', event=>{
             let title = $('#title').val();
             let subtitle = $('#subtitle').val();
+            let timelineview = $('#timelineview').prop('checked')
             let date = $('#date').val();
             let start = $('#start').val();
             let end = $('#end').val();
@@ -766,7 +792,7 @@ class View {
             let heloquarters = $('#heloquarters').val();
             let variation = $('#variation').val();
             let timezone = $('#timezone').val();
-            handler(title, subtitle, date, start, end, sunrise, sunset, moonrise, moonset, moonphase, flightquarters, heloquarters, variation, timezone)
+            handler(title, subtitle, timelineview, date, start, end, sunrise, sunset, moonrise, moonset, moonphase, flightquarters, heloquarters, variation, timezone)
             closeModal()
         })
     }
@@ -790,6 +816,11 @@ class View {
         html += "<label for='subtitle' class='col-12 col-md-3 text-left text-md-right'>Subtitle</label>";
         html += "<input type='text' class='col form-control mr-5' id='subtitle' placeholder='Airplan Subtitle'>";
         html += "</div>";
+        // Timeline View
+        html += "<div class='form-group row align-items-center'>";
+        html += "<label for='timelineview' class='col-12 col-md-3 text-left text-md-right'>Timeline Grid</label>";
+        html += `<input type='checkbox' class='mr-5 align-left' id='timelineview'></input>`
+        html += "</div>"
         // Start
         html += "<div class='form-group row align-items-center'>";
         html += "<label for='start' class='col-12 col-md-3 text-left text-md-right'>Start Time</label>";
@@ -997,24 +1028,24 @@ class View {
         }).addTo(this.events)
         
         /** Sunrise Group */
-        new Konva.Group({id:'sunrise',name:'timeline', x: this.time2pixels(airplan.sunrise,airplan), y: 20 }).addTo(this.timebox).anchorCenter()
+        new Konva.Group({id:'sunrise',name:'timeline', x: this.time2pixels(airplan.sunrise,airplan), y: this.topRow }).addTo(this.timebox).anchorCenter()
         
         // Sunrise
-        new Konva.Arc({ angle: 180, outerRadius: 15, clockwise: true, stroke:'black', strokeWidth:1 }).addTo(this.stage.findOne('#sunrise'));
+        new Konva.Arc({ angle: 180, outerRadius: this.topRow*0.75, clockwise: true, stroke:'black', strokeWidth:1 }).addTo(this.stage.findOne('#sunrise'));
         
         // Sunrise Text
-        new Konva.Text({ text: airplan.sunrise.toHHMM(), y: -20 }).addTo(this.stage.findOne('#sunrise')).anchorBottomMiddle();
+        new Konva.Text({ text: airplan.sunrise.toHHMM(), y: -this.topRow }).addTo(this.stage.findOne('#sunrise')).anchorBottomMiddle();
         
         this.stage.findOne('#sunrise').fitToChildren().addHighlightBox()
         
         /** Sunset Group */
-        new Konva.Group({id:'sunset',name:'timeline', x: this.time2pixels(airplan.sunset,airplan), y: 20 }).addTo(this.timebox).anchorCenter()
+        new Konva.Group({id:'sunset',name:'timeline', x: this.time2pixels(airplan.sunset,airplan), y: this.topRow }).addTo(this.timebox).anchorCenter()
         
         // Sunset
-        new Konva.Arc({ angle: 180, outerRadius: 15, clockwise: true, stroke:'black', fill: 'black', strokeWidth:1 }).addTo(this.stage.findOne('#sunset'));
+        new Konva.Arc({ angle: 180, outerRadius: this.topRow*0.75, clockwise: true, stroke:'black', fill: 'black', strokeWidth:1 }).addTo(this.stage.findOne('#sunset'));
         
         // Sunset Text
-        new Konva.Text({ text: airplan.sunset.toHHMM(), y: -20 }).addTo(this.stage.findOne('#sunset')).anchorBottomMiddle();
+        new Konva.Text({ text: airplan.sunset.toHHMM(), y: -this.topRow }).addTo(this.stage.findOne('#sunset')).anchorBottomMiddle();
         
         this.stage.findOne('#sunset').fitToChildren().addHighlightBox()
         
@@ -1022,6 +1053,45 @@ class View {
         new Konva.Text({ text: `\u21A6${airplan.start.toHHMM()}`, y: this.topRow*2.5 }).addTo(this.timebox).anchorTopLeft()
         new Konva.Text({ text: airplan.end.toHHMM()+'\u21A4',   y: this.topRow*2.5, x: this.timebox.width() }).addTo(this.timebox).anchorTopRight()
         
+        /** Timeline View Grid */
+        if (this.timelineview) {
+            let time = new Date(airplan.start)
+            time.setHours(time.getHours(),0,0,0)
+            let group = new Konva.Group({
+                x: this.time2pixels(airplan.start,airplan),
+                y: this.topRow,
+                width: this.time2pixels(airplan.end,airplan) - this.time2pixels(airplan.start,airplan),
+                height: this.timebox.height() - this.topRow,
+            }).addTo(this.timebox)
+
+            while (time < airplan.end) {
+                let x = this.time2pixels(time,airplan)
+                if (time>airplan.start) {
+                    new Konva.Line({
+                        stroke:'black',
+                        strokeWidth:1,
+                        points: [x,0,x,group.height()],
+                        dash: [10,5],
+                        dashEnabled: false
+                    }).addTo(group)
+                    new Konva.Text({ text:time.toHHMM()+'L', x:x}).addTo(group).anchorTopLeft({padX:1,padY:2})
+                    new Konva.Text({ text:time.toZulu(-4)+'Z', x:x}).addTo(group).anchorBottomLeft({padX:1,padY:1})
+                }
+                time.setMinutes(30,0,0)
+                if (time>airplan.start) {
+                    x = this.time2pixels(time,airplan)
+                    new Konva.Line({
+                        stroke:'black',
+                        strokeWidth:0.25,
+                        points: [x,0,x,group.height()],
+                        dash: [10,5],
+                        dashEnabled: true
+                    }).addTo(group)
+                }
+                time.setHours(time.getHours()+1,0,0,0)
+            }
+        }
+
         /** Timebox.Cycles */
         Object.values(airplan.cycles).forEach((cycle,i)=>{
             let group = new Konva.Group({
@@ -1046,7 +1116,8 @@ class View {
             // Cycle End Time
             new Konva.Text({ text:cycle.end.toHHMM(), x: group.width() }).addTo(group).anchorBottomMiddle()
         })
-        
+    
+
         /** Events.Squadrons */
         this.squadrons = new Konva.Group({ y: 2*this.topRow, width: this.events.width(), height: this.events.height()-this.bottomRow-2*this.topRow}).addTo(this.events)
         
@@ -1101,8 +1172,10 @@ class View {
                     View.drawCondition[sortie.startType](0,0).addTo(sortieGroup)
                     View.drawCondition[sortie.endType](sortieGroup.width(),0).addTo(sortieGroup)
                     
-                    // Event + Note
-                    new Konva.Text({ text:`${sortie.event} ${sortie.note}`,x:1,fontSize:10}).addTo(sortieGroup).anchorBottomLeft({padX:2,padY:2})
+                    // Event + Note + Pre-Note + Post-Note
+                    new Konva.Text({ text:`${sortie.event} ${sortie.note}`,fontSize:10}).addTo(sortieGroup).anchorBottomLeft({padX:5,padY:2})
+                    new Konva.Text({ text:`${sortie.prenote}`, fontSize:10}).addTo(sortieGroup).anchorTopLeft({padX:2,padY:2})
+                    new Konva.Text({ text:`${sortie.postnote}`, fontSize:10, x: sortieGroup.width()}).addTo(sortieGroup).anchorTopRight({padX:2,padY:2})
                     
                     sortieGroup.fitToChildren().addHighlightBox({minSize:4,strokeWidth:4})
                 })
@@ -1181,6 +1254,15 @@ class View {
                 lineWidth:1,
                 closed: true,
                 fill: 'black', fillEnabled: true,
+            })
+        },
+        sto: (x,y) => {
+            return new Konva.Line({
+                points: [x-5,y-5, x+5,y-5, x+5,y+5, x-5,y+5, x-5,y-5],
+                stroke: 'black',
+                lineWidth:1,
+                closed: true,
+                fill: 'white', fillEnabled: true,
             })
         }
     }

@@ -19,6 +19,7 @@ class Controller {
         this.view.bindMenuExport(this.handleExportFile)
         this.view.bindMenuHelp(this.handleHelp)
         this.view.bindMenuFeedback(this.handleFeedback)
+        this.view.bindMenuSettings(this.handleEditHeaderMenu)
         
         // Draw the spash page help.
         this.view.drawHelp()
@@ -208,6 +209,8 @@ class Controller {
         $('#startType').val(sortie.startType)
         $('#endType').val(sortie.endType)
         $('#note').val(sortie.note)
+        $('#prenote').val(sortie.prenote)
+        $('#postnote').val(sortie.postnote)
         $('#isAlert').prop('checked',sortie.isAlert)
     }
     handleEditSquadronMenu = (squadronID) => {
@@ -224,6 +227,7 @@ class Controller {
         this.view.drawEditHeaderData(this.airplan)
         $('#title').val(this.airplan.title)
         $('#subtitle').val(this.airplan.subtitle)
+        $('#timelineview').prop('checked', this.view.timelineview).trigger('change')
         // $('#date').val(this.airplan.date.toYYYYMMDD())
         $('#start').val(this.airplan.start.toLocalTimeString())
         $('#end').val(this.airplan.end.toLocalTimeString())
@@ -288,14 +292,15 @@ class Controller {
         this.airplan.addSortie(lineID, start, end, startType, endType, note, startCycleID, endCycleID, isAlert)
     }
     handleRemoveSortie = (id) => { this.airplan.removeSortie(id) }
-    handleEditSortie = (id, start, end, startType, endType, note, startCycleID, endCycleID, isAlert) => {
-        this.airplan.editSortie(id, start, end, startType, endType, note, startCycleID, endCycleID, isAlert);
+    handleEditSortie = (id, start, end, startType, endType, note, prenote, postnote, startCycleID, endCycleID, isAlert) => {
+        this.airplan.editSortie(id, start, end, startType, endType, note, prenote, postnote, startCycleID, endCycleID, isAlert);
     }
 
     // Edit Header
-    handleEditHeader = (title, subtitle, date, start, end, sunrise, sunset, moonrise, moonset, moonphase, flightquarters, heloquarters, variation, timezone) => {
+    handleEditHeader = (title, subtitle, timelineview, date, start, end, sunrise, sunset, moonrise, moonset, moonphase, flightquarters, heloquarters, variation, timezone) => {
         this.airplan.title = title
         this.airplan.subtitle = subtitle 
+        this.view.timelineview = timelineview
         // this.airplan.date = new Date(Date.parse(date+'T00:00'))
         this.airplan.start = new Date(Date.parse(start))
         this.airplan.end = new Date(Date.parse(end))
