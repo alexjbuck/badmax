@@ -97,7 +97,7 @@ class View {
         <li>Add a sortie in the line by clicking "<i class='fas fa-plus'></i> Add Sortie" underneath the desired line.</li>
         <li>Save your airplan by clicking the <i class='fas fa-save'></i> button. This downloads a file that you can load <i class='fas fa-folder-open'></i> to resume your progress.</li>
         <li>Items on the display to the left open edit menu's if they have a <span class='blue-border'>blue border</span> when you hover over them.</li>
-        <li>Set your computer time zone accurately for Local/Zulu time comparison to be accurate.
+        <li>Set your computer time zone accurately for Local/Zulu time comparison to be accurate.   
         </ol><ul>
         <li><b>Best Practice</b>: Add all of your squadrons, then save your airplan. Use that file as your starting point for the future.</li>
         <li><b>Pro Tip</b>: View these tips anytime by clicking the <i style='color:#ffc107' class='fa fa-question-circle'></i> help icon in the menu.</li>
@@ -576,10 +576,12 @@ class View {
             let startType = $( "#startType" ).val()
             let endType   = $( "#endType" ).val()
             let note = $( "#note" ).val()
+            let prenote = $( "#prenote" ).val()
+            let postnote = $("#postnote").val()
             let startCycleID = $('.start-on-cycle').prop('checked') ? $('#start-cycle').val() : null
             let endCycleID   = $('.end-on-cycle').prop('checked')   ? $('#end-cycle').val()   : null
             let isAlert = $('#isAlert').prop('checked')
-            handler(lineID, start, end, startType, endType, note, startCycleID, endCycleID, isAlert)
+            handler(lineID, start, end, startType, endType, note, prenote, postnote, startCycleID, endCycleID, isAlert)
             closeModal()
         })
     }
@@ -591,10 +593,12 @@ class View {
             let startType = $( "#startType" ).val()
             let endType   = $( "#endType" ).val()
             let note = $( "#note" ).val()
+            let prenote = $( "#prenote" ).val()
+            let postnote = $("#postnote").val()
             let startCycleID = $('.start-on-cycle').prop('checked') ? $('#start-cycle').val() : null
             let endCycleID = $('.end-on-cycle').prop('checked') ? $('#end-cycle').val() : null
             let isAlert = $('#isAlert').prop('checked')
-            handler(sortieID, start, end, startType, endType, note, startCycleID, endCycleID, isAlert)
+            handler(sortieID, start, end, startType, endType, note, prenote, postnote, startCycleID, endCycleID, isAlert)
             closeModal()
         })
     }
@@ -683,6 +687,16 @@ class View {
         html += `<div class='form-group row align-items-center'>`;
         html += `<label for='note' class='col-12 col-md-3 text-left text-md-right'>Note</label>`;
         html += `<input type='text' class='col form-control mr-5' id='note' placeholder='Mission'>`;
+        html += `</div>`;
+        // prenote
+        html += `<div class='form-group row align-items-center'>`;
+        html += `<label for='prenote' class='col-12 col-md-3 text-left text-md-right'>Start Note</label>`;
+        html += `<input type='text' class='col form-control mr-5' id='prenote' placeholder=''>`;
+        html += `</div>`;
+        // postnote
+        html += `<div class='form-group row align-items-center'>`;
+        html += `<label for='postnote' class='col-12 col-md-3 text-left text-md-right'>End Note</label>`;
+        html += `<input type='text' class='col form-control mr-5' id='postnote' placeholder=''>`;
         html += `</div>`;
         // isAlert
         html += `<div class='form-gorup row align-items-center'>`
@@ -1039,7 +1053,7 @@ class View {
         new Konva.Text({ text: `\u21A6${airplan.start.toHHMM()}`, y: this.topRow*2.5 }).addTo(this.timebox).anchorTopLeft()
         new Konva.Text({ text: airplan.end.toHHMM()+'\u21A4',   y: this.topRow*2.5, x: this.timebox.width() }).addTo(this.timebox).anchorTopRight()
         
-
+        /** Timeline View Grid */
         if (this.timelineview) {
             let time = new Date(airplan.start)
             time.setHours(time.getHours(),0,0,0)
@@ -1158,8 +1172,10 @@ class View {
                     View.drawCondition[sortie.startType](0,0).addTo(sortieGroup)
                     View.drawCondition[sortie.endType](sortieGroup.width(),0).addTo(sortieGroup)
                     
-                    // Event + Note
+                    // Event + Note + Pre-Note + Post-Note
                     new Konva.Text({ text:`${sortie.event} ${sortie.note}`,fontSize:10}).addTo(sortieGroup).anchorBottomLeft({padX:5,padY:2})
+                    new Konva.Text({ text:`${sortie.prenote}`, fontSize:10}).addTo(sortieGroup).anchorTopLeft({padX:2,padY:2})
+                    new Konva.Text({ text:`${sortie.postnote}`, fontSize:10, x: sortieGroup.width()}).addTo(sortieGroup).anchorTopRight({padX:2,padY:2})
                     
                     sortieGroup.fitToChildren().addHighlightBox({minSize:4,strokeWidth:4})
                 })

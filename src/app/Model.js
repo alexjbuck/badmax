@@ -177,12 +177,14 @@ class Model {
         this.onChange()
         return sortie
     }
-    editSortie(id, start, end, startType, endType, note, startCycleID=null, endCycleID=null, isAlert=false) {
+    editSortie(id, start, end, startType, endType, note, prenote, postnote, startCycleID=null, endCycleID=null, isAlert=false) {
         this.sorties[id].start = start
         this.sorties[id].end = end
         this.sorties[id].startType = startType
         this.sorties[id].endType = endType
         this.sorties[id].note = note
+        this.sorties[id].prenote = prenote
+        this.sorties[id].postnote = postnote
         this.sorties[id].startCycleID = startCycleID
         this.sorties[id].endCycleID = endCycleID
         this.sorties[id].isAlert = isAlert

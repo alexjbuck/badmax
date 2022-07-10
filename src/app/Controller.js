@@ -209,6 +209,8 @@ class Controller {
         $('#startType').val(sortie.startType)
         $('#endType').val(sortie.endType)
         $('#note').val(sortie.note)
+        $('#prenote').val(sortie.prenote)
+        $('#postnote').val(sortie.postnote)
         $('#isAlert').prop('checked',sortie.isAlert)
     }
     handleEditSquadronMenu = (squadronID) => {
@@ -290,8 +292,8 @@ class Controller {
         this.airplan.addSortie(lineID, start, end, startType, endType, note, startCycleID, endCycleID, isAlert)
     }
     handleRemoveSortie = (id) => { this.airplan.removeSortie(id) }
-    handleEditSortie = (id, start, end, startType, endType, note, startCycleID, endCycleID, isAlert) => {
-        this.airplan.editSortie(id, start, end, startType, endType, note, startCycleID, endCycleID, isAlert);
+    handleEditSortie = (id, start, end, startType, endType, note, prenote, postnote, startCycleID, endCycleID, isAlert) => {
+        this.airplan.editSortie(id, start, end, startType, endType, note, prenote, postnote, startCycleID, endCycleID, isAlert);
     }
 
     // Edit Header
