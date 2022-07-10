@@ -642,6 +642,7 @@ class View {
         html += `<option value='flyon'>Fly On</option>`;
         html += `<option value='hp'>Hot Pump</option>`;
         html += `<option value='hpcs'>Hot Pump & Crew Swap</option>`;
+        html += `<option value='sto'>Short Take Off</option>`;
         html += `</select>`;
         html += `</div>`;
         // End time
@@ -666,6 +667,7 @@ class View {
         html += `<option value='flyoff'>Fly Off</option>`;
         html += `<option value='hp'>Hot Pump</option>`;
         html += `<option value='hpcs'>Hot Pump & Crew Swap</option>`;
+        html += `<option value='sto'>Short Take Off</option>`;
         html += `</select>`;
         html += `</div>`;
         // note
@@ -1102,7 +1104,7 @@ class View {
                     View.drawCondition[sortie.endType](sortieGroup.width(),0).addTo(sortieGroup)
                     
                     // Event + Note
-                    new Konva.Text({ text:`${sortie.event} ${sortie.note}`,x:1,fontSize:10}).addTo(sortieGroup).anchorBottomLeft({padX:2,padY:2})
+                    new Konva.Text({ text:`${sortie.event} ${sortie.note}`,fontSize:10}).addTo(sortieGroup).anchorBottomLeft({padX:5,padY:2})
                     
                     sortieGroup.fitToChildren().addHighlightBox({minSize:4,strokeWidth:4})
                 })
@@ -1181,6 +1183,15 @@ class View {
                 lineWidth:1,
                 closed: true,
                 fill: 'black', fillEnabled: true,
+            })
+        },
+        sto: (x,y) => {
+            return new Konva.Line({
+                points: [x-5,y-5, x+5,y-5, x+5,y+5, x-5,y+5, x-5,y-5],
+                stroke: 'black',
+                lineWidth:1,
+                closed: true,
+                fill: 'white', fillEnabled: true,
             })
         }
     }
