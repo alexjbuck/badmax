@@ -2,7 +2,7 @@
 
 **For when you don't have ADMACS (maybe even when you do! 🤣)**
 
-[![Padawan Host](https://code.il2.dso.mil//%{project_path}/badges/%{default_branch}/pipeline.svg)](https://websites.dso.mil/sites/badmax/)
+[![Padawan Host](https://code.il2.dso.mil//tron/products/dod-open-source/digitize/badmax/badges/master/pipeline.svg)](https://websites.dso.mil/sites/badmax/)
 
 Version: 0.6.0
 
