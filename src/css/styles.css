@@ -37,14 +37,14 @@
   padding: 0;
   padding-bottom: 2em;
 }
-.cycles-col {
+.list-col > div {
   margin-top: 1em;
   margin-bottom: 1em;
 }
-.sorties-col {
+/* .sorties-col {
   margin-top: 1em;
   margin-bottom: 1em;
-}
+} */
 .credit {
   /* position: absolute; */
   /* bottom: 0; */
@@ -84,4 +84,6 @@
   font-size: smaller;
 }
 
-
+label {
+  margin-bottom: 0;
+}
