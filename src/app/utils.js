@@ -70,8 +70,9 @@ Date.prototype.toHHMM = function() {
 
 Date.prototype.toZulu = function() {
     offset = -this.getTimezoneOffset()/60
+    hours = (this.getHours()-offset+24)%24
     // return the datetime object as HHMM string
-    let HH = this.getHours()-offset < 10 ? '0'+this.getHours-offset : this.getHours()-offset
+    let HH = hours < 10 ? '0'+hours : hours
     let MM = this.getMinutes() < 10 ? '0'+this.getMinutes() : this.getMinutes()
     return ''+HH+MM
 }
@@ -239,4 +240,11 @@ assignEvents = () => {
         }
         s.event = cycle+letter+counts[[cycle,letter]]
     })
+}
+
+estimateLocation = (time) => {
+    let lat = 0;
+    // timezone offset (minutes) * 1hour/60minutes * 15deg/hour = degs
+    let lon = time.getTimezoneOffset()/-60 * 15;
+    return {lat,lon}
 }
