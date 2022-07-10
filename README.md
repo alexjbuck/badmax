@@ -6,10 +6,10 @@
 
 Version: 0.6.0
 
-Writing airplans in PowerPoint is a big bummer 🤬.
+Writing airplans in PowerPoint or Excel is a big bummer 🤬.
 Never again will you chained to dragging around little lines on the screen ⛓.
-This is a simple web app that allows you to view and edit your squadron's flight plans 📋.
-You can add new flights, edit existing flights, and delete flights. You can also export your squadron's flight plans to PDF.
+This is a simple web app that allows you to view and edit your unit's flight plans 📋.
+You can add new flights, edit existing flights, and delete flights. You can also export your flight plans to PDF.
 
 Tips:
 
