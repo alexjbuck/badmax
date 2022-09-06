@@ -17,7 +17,7 @@ class View {
         this.rightCol           = 40;
         this.topRow             = 20;
         this.bottomRow          = 20;
-        this.timelineview       = true;
+        this.timelineview       = false;
         this.drawMenu();
         this.drawSquadrons();
         $(function () {
