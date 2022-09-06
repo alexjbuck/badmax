@@ -52,6 +52,7 @@ class Model {
     get sunset()                        { return this._sunset         }
     get moonrise()                      { return this._moonrise       }
     get moonset()                       { return this._moonset        }
+
     
     /**
      * @method updateCounts Updates the sortie counts of each squadron-cycle pair. Used to number events.
@@ -248,12 +249,45 @@ class Model {
         this.lines[id].toggleDisplay()
     }
 
-    changeDate(date) {
+    get startDate() {
+        let firstSortie = Object.values(this.sorties).reduce((a,b)=>{
+            return a.start<b.start? a : b
+        },{start: Infinity})
+        let firstCycle = Object.values(this.cycles).reduce((a,b)=>{
+            return a.start<b.start? a : b
+        },{start: Infinity})
+        return new Date(Math.min(firstSortie.start,firstCycle.start,this.start))
+    }
+
+    /**
+     * Shift all dates in the Model by `shift` amount.
+     * @param {Number} shift Number of days to shift all dates by
+     */
+    shiftDates(shift) {
+        console.log(shift)
         Object.keys(this.sorties).forEach(k => {
-            this.sorties[k].setDate(date)
+            this.sorties[k].shiftDates(shift)
         })
         Object.keys(this.cycles).forEach(k => {
-            this.cycles[k].setDate(date)
+            this.cycles[k].shiftDates(shift)
+        })
+        this.start.setDate(this.start.getDate()+shift) 
+        this.end.setDate(this.end.getDate()+shift) 
+        this.flightquarters.setDate(this.flightquarters.getDate()+shift) 
+        this.heloquarters.setDate(this.heloquarters.getDate()+shift) 
+        this.sunrise.setDate(this.sunrise.getDate()+shift) 
+        this.sunset.setDate(this.sunset.getDate()+shift) 
+        this.moonrise.setDate(this.moonrise.getDate()+shift) 
+        this.moonset.setDate(this.moonset.getDate()+shift) 
+
+    }
+
+    changeDate(date) {
+        Object.keys(this.sorties).forEach(k => {
+            this.sorties[k].setDates(date)
+        })
+        Object.keys(this.cycles).forEach(k => {
+            this.cycles[k].setDates(date)
         })
 
         let year = date.getFullYear()

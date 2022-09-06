@@ -321,8 +321,19 @@ class Controller {
         this.onAirplanChanged();
     }
 
-    handleSettingsSubmit = (timelineview) => {
+    handleSettingsSubmit = (timelineview,shiftDate) => {
+        let year = shiftDate.getFullYear()
+        let month = shiftDate.getMonth()
+        let day = shiftDate.getDay()
+        
+        let startDate = new Date(this.airplan.startDate)
+        shiftDate.setHours(0,0,0,0)
+        startDate.setHours(0,0,0,0)
+        let shift = Math.round((shiftDate - startDate)/86400000)
         this.view.timelineview = timelineview
+        if(shift!=0) {
+            this.airplan.shiftDates(shift)
+        }
         this.onAirplanChanged();
         
     }

@@ -188,7 +188,11 @@ class View {
     bindSettingsSubmit(handler) {
         this.settingsSubmit.on('click', event=>{
             let timelineview = $('#timelineview').prop('checked')
-            handler(timelineview)
+            // Parse the date from Date input. This will be midnight *GMT*. 
+            let date = new Date(Date.parse($('#setdate').val()))
+            // Adjust the time by the timezoneOffset so that it is midnight *LOCAL* time.
+            date.setMinutes(date.getMinutes()+date.getTimezoneOffset())
+            handler(timelineview,date)
             closeModal()
         })
     }
