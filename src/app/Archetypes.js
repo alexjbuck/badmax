@@ -28,5 +28,14 @@ class Event {
     get night() {
         return false
     }
+
+    setDate(date) {
+        let year = date.getFullYear()
+        let month = date.getMonth()
+        let day = date.getDate()
+        console.log(this,year,month,day)
+        this.start.setFullYear(year,month,day)
+        this.end.setFullYear(year,month,day)
+    }
     
 }

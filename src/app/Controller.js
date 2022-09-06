@@ -19,7 +19,7 @@ class Controller {
         this.view.bindMenuExport(this.handleExportFile)
         this.view.bindMenuHelp(this.handleHelp)
         this.view.bindMenuFeedback(this.handleFeedback)
-        this.view.bindMenuSettings(this.handleEditHeaderMenu)
+        this.view.bindMenuSettings(this.handleSettings)
         
         // Draw the spash page help.
         this.view.drawHelp()
@@ -91,6 +91,13 @@ class Controller {
         let body=`If you're reporting an issue, please save and export your working file. Attach the json and pdf to this email to assist troubleshooting.%0d%0a%0d%0aThree things I liked:%0d%0a1. %0d%0a2. %0d%0a3. %0d%0a%0d%0aThree things I did not like:%0d%0a1. %0d%0a2. %0d%0a3. %0d%0a%0d%0aAny other feedback:%0d%0a%0d%0aThank You!`
         window.open(`mailto:${email}?subject=${subject}&body=${body}`)
     }
+
+    handleSettings = () => {
+        this.view.drawSettingsMenu()
+        $('#timelineview').prop('checked', this.view.timelineview).trigger('change')
+        this.view.bindSettingsSubmit(this.handleSettingsSubmit)
+    }
+    
 
     /**
      * ADD/EDIT MENU HANDLERS
@@ -227,7 +234,6 @@ class Controller {
         this.view.drawEditHeaderData(this.airplan)
         $('#title').val(this.airplan.title)
         $('#subtitle').val(this.airplan.subtitle)
-        $('#timelineview').prop('checked', this.view.timelineview).trigger('change')
         // $('#date').val(this.airplan.date.toYYYYMMDD())
         $('#start').val(this.airplan.start.toLocalTimeString())
         $('#end').val(this.airplan.end.toLocalTimeString())
@@ -297,10 +303,9 @@ class Controller {
     }
 
     // Edit Header
-    handleEditHeader = (title, subtitle, timelineview, date, start, end, sunrise, sunset, moonrise, moonset, moonphase, flightquarters, heloquarters, variation, timezone) => {
+    handleEditHeader = (title, subtitle, date, start, end, sunrise, sunset, moonrise, moonset, moonphase, flightquarters, heloquarters, variation, timezone) => {
         this.airplan.title = title
         this.airplan.subtitle = subtitle 
-        this.view.timelineview = timelineview
         // this.airplan.date = new Date(Date.parse(date+'T00:00'))
         this.airplan.start = new Date(Date.parse(start))
         this.airplan.end = new Date(Date.parse(end))
@@ -314,5 +319,11 @@ class Controller {
         this.airplan.variation = variation
         this.airplan.timezone = timezone
         this.onAirplanChanged();
+    }
+
+    handleSettingsSubmit = (timelineview) => {
+        this.view.timelineview = timelineview
+        this.onAirplanChanged();
+        
     }
 }

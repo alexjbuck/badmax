@@ -185,6 +185,44 @@ class View {
         this.squadron.rem = $('#rem-squadron')
     }
 
+    bindSettingsSubmit(handler) {
+        this.settingsSubmit.on('click', event=>{
+            let timelineview = $('#timelineview').prop('checked')
+            handler(timelineview)
+            closeModal()
+        })
+    }
+
+    //     _____      _   _   _              __      ___               
+    //    / ____|    | | | | (_)             \ \    / (_)              
+    //   | (___   ___| |_| |_ _ _ __   __ _   \ \  / / _  _____      __
+    //    \___ \ / _ \ __| __| | '_ \ / _` |   \ \/ / | |/ _ \ \ /\ / /
+    //    ____) |  __/ |_| |_| | | | | (_| |    \  /  | |  __/\ V  V / 
+    //   |_____/ \___|\__|\__|_|_| |_|\__, |     \/   |_|\___| \_/\_/  
+    //                                 __/ |                           
+    //                                |___/                            
+    /**
+     * @method drawSettings
+     */
+    drawSettingsMenu() {
+        let html = `
+        <h3>Settings</h3>
+        <div class='form-group row align-items-center'>
+            <label for='timelineview' class='col-12 col-md-3 text-left text-md-right'>Timeline Grid</label>
+            <input type='checkbox' class='mr-5 align-left' id='timelineview'></input>
+        </div>
+        <div class='form-group row align-items-center'>
+            <label for='setdate' class='col-12 col-md-3 text-left text-md-right'>Change Date</label>
+            <input type='date' class='mr-5 align-left' id='setdate'></input>
+        </div>
+        <div class='btn-group'>
+            <button class='btn btn-primary settings-submit'>Submit</button>
+        </div>
+        `
+        openModal(html)
+        this.settingsSubmit = $('.settings-submit')
+    }
+
     //     _____                           _                      ____   _             _  _                    
     //    / ____|                         | |                    |  _ \ (_)           | |(_)                   
     //   | (___    __ _  _   _   __ _   __| | _ __  ___   _ __   | |_) | _  _ __    __| | _  _ __    __ _  ___ 
@@ -779,7 +817,6 @@ class View {
         this.editHeaderSubmit.on('click', event=>{
             let title = $('#title').val();
             let subtitle = $('#subtitle').val();
-            let timelineview = $('#timelineview').prop('checked')
             let date = $('#date').val();
             let start = $('#start').val();
             let end = $('#end').val();
@@ -792,7 +829,7 @@ class View {
             let heloquarters = $('#heloquarters').val();
             let variation = $('#variation').val();
             let timezone = $('#timezone').val();
-            handler(title, subtitle, timelineview, date, start, end, sunrise, sunset, moonrise, moonset, moonphase, flightquarters, heloquarters, variation, timezone)
+            handler(title, subtitle, date, start, end, sunrise, sunset, moonrise, moonset, moonphase, flightquarters, heloquarters, variation, timezone)
             closeModal()
         })
     }
@@ -816,11 +853,6 @@ class View {
         html += "<label for='subtitle' class='col-12 col-md-3 text-left text-md-right'>Subtitle</label>";
         html += "<input type='text' class='col form-control mr-5' id='subtitle' placeholder='Airplan Subtitle'>";
         html += "</div>";
-        // Timeline View
-        html += "<div class='form-group row align-items-center'>";
-        html += "<label for='timelineview' class='col-12 col-md-3 text-left text-md-right'>Timeline Grid</label>";
-        html += `<input type='checkbox' class='mr-5 align-left' id='timelineview'></input>`
-        html += "</div>"
         // Start
         html += "<div class='form-group row align-items-center'>";
         html += "<label for='start' class='col-12 col-md-3 text-left text-md-right'>Start Time</label>";

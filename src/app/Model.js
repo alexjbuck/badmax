@@ -35,7 +35,6 @@ class Model {
     //     this._date = new Date(date);
     //     this._date.setHours(0);
     // }
-    get date() { return new Date(this.start.valueOf()/2 + this.end.valueOf()/2) }
     set start(start)                    { this._start             = new Date(start)          }
     set end(end)                        { this._end               = new Date(end)            }
     set flightquarters(flightquarters)  { this._flightquarters    = new Date(flightquarters) }
@@ -44,7 +43,7 @@ class Model {
     set sunset(sunset)                  { this._sunset            = new Date(sunset)         }
     set moonrise(moonrise)              { this._moonrise          = new Date(moonrise)       }
     set moonset(moonset)                { this._moonset           = new Date(moonset)        }
-    // get date()                          { return this._date           } 
+    get date() { return new Date(this.start.valueOf()/2 + this.end.valueOf()/2) }
     get start()                         { return this._start          }
     get end()                           { return this._end            } 
     get flightquarters()                { return this._flightquarters }
@@ -247,5 +246,27 @@ class Model {
 
     toggleLineDisplay(id) {
         this.lines[id].toggleDisplay()
+    }
+
+    changeDate(date) {
+        Object.keys(this.sorties).forEach(k => {
+            this.sorties[k].setDate(date)
+        })
+        Object.keys(this.cycles).forEach(k => {
+            this.cycles[k].setDate(date)
+        })
+
+        let year = date.getFullYear()
+        let month = date.getMonth()
+        let day = date.getDate()
+        console.log('Change to: ',year,month,day)
+        this.start.setFullYear(year,month,day) 
+        this.end.setFullYear(year,month,day) 
+        this.flightquarters.setFullYear(year,month,day) 
+        this.heloquarters.setFullYear(year,month,day) 
+        this.sunrise.setFullYear(year,month,day) 
+        this.sunset.setFullYear(year,month,day) 
+        this.moonrise.setFullYear(year,month,day) 
+        this.moonset.setFullYear(year,month,day) 
     }
 }
