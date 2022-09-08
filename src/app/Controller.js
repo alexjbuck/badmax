@@ -116,10 +116,11 @@ class Controller {
         this.view.drawAddCycleMenu()
         let start = new Date()
         let end = new Date()
+        let jd = this.view.date.julianDate()
         if (Object.keys(this.airplan.cycles).length > 0) {
             start = new Date(this.airplan.cycleList.at(-1).end)
         } else {
-            start = new Date(this.airplan.start.valueOf() + 3600*1000)
+            start = new Date(this.airplan.start[jd].valueOf() + 3600*1000)
         }
         end = new Date(start.valueOf() + 3600*1000)
         $('#start').val(start.toLocalTimeString())
@@ -167,6 +168,7 @@ class Controller {
     * @param {String} lineID 
     */
     handleAddSortieMenu = (lineID) => {
+        let jd = this.view.date.julianDate()
         this.view.drawAddSortieMenu(this.airplan.lines[lineID], this.airplan.cycleList)
         .then(()=>{
             let start = new Date()
@@ -184,7 +186,7 @@ class Controller {
                 start = new Date(this.airplan.cycleList[0].start)
                 end = new Date(this.airplan.cycleList[0].end)
             } else {
-                start = new Date(this.airplan.start)
+                start = new Date(this.airplan.start[jd])
                 end = new Date(start.valueOf()+3600*1000)
             }
             // Match start type to prev sortie end type
@@ -232,20 +234,21 @@ class Controller {
     }
     handleEditHeaderMenu = () => {
         this.view.drawEditHeaderData(this.airplan)
-        $('#title').val(this.airplan.title)
-        $('#subtitle').val(this.airplan.subtitle)
+        let jd = this.view.date.julianDate()
+        $('#title').val(this.airplan.title[jd])
+        $('#subtitle').val(this.airplan.subtitle[jd])
         // $('#date').val(this.airplan.date.toYYYYMMDD())
-        $('#start').val(this.airplan.start.toLocalTimeString())
-        $('#end').val(this.airplan.end.toLocalTimeString())
-        $('#sunrise').val(this.airplan.sunrise.toLocalTimeString())
-        $('#sunset').val(this.airplan.sunset.toLocalTimeString())
-        $('#moonrise').val(this.airplan.moonrise.toLocalTimeString())
-        $('#moonset').val(this.airplan.moonset.toLocalTimeString())
-        $('#moonphase').val(this.airplan.moonphase)
-        $('#flightquarters').val(this.airplan.flightquarters.toLocalTimeString())
-        $('#heloquarters').val(this.airplan.heloquarters.toLocalTimeString())
-        $('#variation').val(this.airplan.variation)
-        $('#timezone').val(this.airplan.timezone)
+        $('#start').val(this.airplan.start[jd].toLocalTimeString())
+        $('#end').val(this.airplan.end[jd].toLocalTimeString())
+        $('#sunrise').val(this.airplan.sunrise[jd].toLocalTimeString())
+        $('#sunset').val(this.airplan.sunset[jd].toLocalTimeString())
+        $('#moonrise').val(this.airplan.moonrise[jd].toLocalTimeString())
+        $('#moonset').val(this.airplan.moonset[jd].toLocalTimeString())
+        $('#moonphase').val(this.airplan.moonphase[jd])
+        $('#flightquarters').val(this.airplan.flightquarters[jd].toLocalTimeString())
+        $('#heloquarters').val(this.airplan.heloquarters[jd].toLocalTimeString())
+        $('#variation').val(this.airplan.variation[jd])
+        $('#timezone').val(this.airplan.timezone[jd])
         this.view.bindEditHeaderSubmit(this.handleEditHeader)
     }
     
@@ -294,8 +297,8 @@ class Controller {
     handleToggleLineDisplay = (id) => { this.airplan.toggleLineDisplay(id) }
 
     // Add/Remove/Edit Sortie
-    handleAddSortie = (lineID, start, end, startType, endType, note, startCycleID, endCycleID, isAlert) => {
-        this.airplan.addSortie(lineID, start, end, startType, endType, note, startCycleID, endCycleID, isAlert)
+    handleAddSortie = (lineID, start, end, startType, endType, note, prenote, postnote, startCycleID, endCycleID, isAlert) => {
+        this.airplan.addSortie(lineID, start, end, startType, endType, note, prenote, postnote, startCycleID, endCycleID, isAlert)
     }
     handleRemoveSortie = (id) => { this.airplan.removeSortie(id) }
     handleEditSortie = (id, start, end, startType, endType, note, prenote, postnote, startCycleID, endCycleID, isAlert) => {
@@ -304,20 +307,19 @@ class Controller {
 
     // Edit Header
     handleEditHeader = (title, subtitle, date, start, end, sunrise, sunset, moonrise, moonset, moonphase, flightquarters, heloquarters, variation, timezone) => {
-        this.airplan.title = title
-        this.airplan.subtitle = subtitle 
-        // this.airplan.date = new Date(Date.parse(date+'T00:00'))
-        this.airplan.start = new Date(Date.parse(start))
-        this.airplan.end = new Date(Date.parse(end))
-        this.airplan.sunrise = new Date(Date.parse(sunrise))
-        this.airplan.sunset = new Date(Date.parse(sunset))
-        this.airplan.moonrise = new Date(Date.parse(moonrise))
-        this.airplan.moonset = new Date(Date.parse(moonset))
-        this.airplan.moonphase = moonphase
-        this.airplan.flightquarters = new Date(Date.parse(flightquarters))
-        this.airplan.heloquarters = new Date(Date.parse(heloquarters))
-        this.airplan.variation = variation
-        this.airplan.timezone = timezone
+        let jd = this.view.date.julianDate()
+        this.airplan.title[jd] = title
+        this.airplan.subtitle[jd] = subtitle 
+        this.airplan.start[jd] = new Date(Date.parse(start))
+        this.airplan.end[jd] = new Date(Date.parse(end))
+        this.airplan.sunrise[jd] = new Date(Date.parse(sunrise))
+        this.airplan.sunset[jd] = new Date(Date.parse(sunset))
+        this.airplan.moonrise[jd] = new Date(Date.parse(moonrise))
+        this.airplan.moonset[jd] = new Date(Date.parse(moonset))
+        this.airplan.moonphase[jd] = moonphase
+        this.airplan.flightquarters[jd] = new Date(Date.parse(flightquarters))
+        this.airplan.heloquarters[jd] = new Date(Date.parse(heloquarters))
+        this.airplan.variation[jd] = variation
         this.onAirplanChanged();
     }
 
@@ -333,6 +335,7 @@ class Controller {
         this.view.timelineview = timelineview
         if(shift!=0) {
             this.airplan.shiftDates(shift)
+            this.view.date.setDate(this.view.date.getDate()+shift)
         }
         this.onAirplanChanged();
         

@@ -77,6 +77,16 @@ Date.prototype.toZulu = function() {
     return ''+HH+MM
 }
 
+Date.prototype.julianDay = function() {
+    return this.valueOf()/86400000 + 2440587.5
+}
+
+Date.prototype.julianDate = function() {
+    // Make new date of current year but january first at midnight.
+    let first = new Date(this.getFullYear(),0,1,0,0,0,0)
+    return Math.ceil(this.julianDay()-first.julianDay())
+}
+
 Konva.Node.prototype.drawBoundingBox = function({stroke='black',strokeWidth=1, name='box', fillEnabled='false', fill='',opacity=1,zIndex=0, minSize=15}={}){
     let x=0,y=0
     if (this.nodeType == 'Shape') {

@@ -18,11 +18,18 @@ class View {
         this.topRow             = 20;
         this.bottomRow          = 20;
         this.timelineview       = false;
+        this.date               = new Date()
         this.drawMenu();
         this.drawSquadrons();
         $(function () {
             $('[data-toggle="tooltip"]').tooltip()
         })
+    }
+
+    setDate(date) {
+        // Adjust the time by the timezoneOffset so that it is midnight *LOCAL* time.
+        date.setMinutes(date.getMinutes()+date.getTimezoneOffset())
+        this.date = date.julianDate()
     }
     // ASCII Comments generated with: https://patorjk.com/software/taag with the Big font
     //    __  __                      __      __ _                      
@@ -540,7 +547,11 @@ class View {
             html += `<summary class='h3'>Lines and Sorties</summary>`
             html += `<div class='list-group'>`
         Object.values(airplan.squadrons).forEach(squadron => {
-            Object.values(airplan.lines).filter(line=>line.squadronID == squadron.ID).sort((a,b)=>a.start-b.start).forEach((line,i) => {
+            Object.values(airplan.lines)
+            .filter(line=>line.squadronID == squadron.ID)
+            .filter(l=> l.isEmpty || l.start?.julianDate()==this.date.julianDate() || l.end?.julianDate()==this.date.julianDate())
+            .sort((a,b)=>a.start-b.start)
+            .forEach((line,i) => {
                 let display='open'
                 if(line.display!=undefined && !line.display){
                     display=''
@@ -929,6 +940,8 @@ class View {
     * @param {Model} airplan Create the Konva object and draw the airplan on it.
     */
     drawStage = (airplan) => { 
+        let jd = this.date.julianDate()
+
         // Create Stage
         this.stage = new Konva.Stage({
             container: 'graphic-stage',   // id of container <div>
@@ -976,7 +989,7 @@ class View {
         }).addTo(this.stage.findOne('#slap'));
         
         new Konva.Text({
-            text: ['sunrise', 'sunset', 'moonrise', 'moonset'].map(k=>airplan[k].toHHMM()).concat(airplan.moonphase).join('\n'),
+            text: ['sunrise', 'sunset', 'moonrise', 'moonset'].map(k=>airplan[k][jd].toHHMM()).concat(airplan.moonphase[jd]).join('\n'),
             offsetX: -this.stage.findOne('#slap.label').width() - config.body.padding,
         }).addTo(this.stage.findOne('#slap'));
         
@@ -995,7 +1008,7 @@ class View {
         new Konva.Text({
             id: 'title.subtitle',
             y: this.stage.findOne('#title.title').height() + config.subtitle.padding,
-            text: airplan.subtitle,
+            text: `${airplan.subtitle}: ${this.date.toYYYYMMDD()}`,
             fontSize : config.subtitle.fontSize,
         }).addTo(this.stage.findOne('#title')).anchorTopMiddle()
         
@@ -1013,7 +1026,7 @@ class View {
         
         // Time Values
         new Konva.Text({
-            text: ['flightquarters','heloquarters'].map(k=>airplan[k].toHHMM()).concat([airplan.variation,airplan.timezone]).join('\n'),
+            text: ['flightquarters','heloquarters'].map(k=>airplan[k][jd].toHHMM()).concat([airplan.variation[jd],airplan.timezone[jd]]).join('\n'),
             id: 'time.value',
             x: this.stage.findOne('#time.label').width() + config.body.padding
         }).addTo(this.stage.findOne('#time'));
@@ -1070,7 +1083,7 @@ class View {
         new Konva.Arc({ angle: 180, outerRadius: this.topRow*0.75, clockwise: true, stroke:'black', strokeWidth:1 }).addTo(this.stage.findOne('#sunrise'));
         
         // Sunrise Text
-        new Konva.Text({ text: airplan.sunrise.toHHMM(), y: -this.topRow }).addTo(this.stage.findOne('#sunrise')).anchorBottomMiddle();
+        new Konva.Text({ text: airplan.sunrise[jd].toHHMM(), y: -this.topRow }).addTo(this.stage.findOne('#sunrise')).anchorBottomMiddle();
         
         this.stage.findOne('#sunrise').fitToChildren().addHighlightBox()
         
@@ -1081,28 +1094,28 @@ class View {
         new Konva.Arc({ angle: 180, outerRadius: this.topRow*0.75, clockwise: true, stroke:'black', fill: 'black', strokeWidth:1 }).addTo(this.stage.findOne('#sunset'));
         
         // Sunset Text
-        new Konva.Text({ text: airplan.sunset.toHHMM(), y: -this.topRow }).addTo(this.stage.findOne('#sunset')).anchorBottomMiddle();
+        new Konva.Text({ text: airplan.sunset[jd].toHHMM(), y: -this.topRow }).addTo(this.stage.findOne('#sunset')).anchorBottomMiddle();
         
         this.stage.findOne('#sunset').fitToChildren().addHighlightBox()
         
-        /** Timebox.Start/End */
-        new Konva.Text({ text: `\u21A6${airplan.start.toHHMM()}`, y: this.topRow*2.5 }).addTo(this.timebox).anchorTopLeft()
-        new Konva.Text({ text: airplan.end.toHHMM()+'\u21A4',   y: this.topRow*2.5, x: this.timebox.width() }).addTo(this.timebox).anchorTopRight()
+        /** Timebox.Start/End */        
+        new Konva.Text({ text: `\u21A6${airplan.start[jd].toHHMM()}`, y: this.topRow*2.5 }).addTo(this.timebox).anchorTopLeft()
+        new Konva.Text({ text: airplan.end[jd].toHHMM()+'\u21A4',   y: this.topRow*2.5, x: this.timebox.width() }).addTo(this.timebox).anchorTopRight()
         
         /** Timeline View Grid */
         if (this.timelineview) {
-            let time = new Date(airplan.start)
-            time.setHours(time.getHours(),0,0,0)
+            let time = new Date(this.date)
+            time.setHours(airplan.start[jd].getHours(),0,0,0)
             let group = new Konva.Group({
-                x: this.time2pixels(airplan.start,airplan),
+                x: this.time2pixels(airplan.start[jd],airplan),
                 y: this.topRow,
-                width: this.time2pixels(airplan.end,airplan) - this.time2pixels(airplan.start,airplan),
+                width: this.time2pixels(airplan.end[jd],airplan) - this.time2pixels(airplan.start[jd],airplan),
                 height: this.timebox.height() - this.topRow,
             }).addTo(this.timebox)
 
-            while (time < airplan.end) {
+            while (time < airplan.end[jd]) {
                 let x = this.time2pixels(time,airplan)
-                if (time>airplan.start) {
+                if (time>airplan.start[jd]) {
                     new Konva.Line({
                         stroke:'black',
                         strokeWidth:1,
@@ -1114,7 +1127,7 @@ class View {
                     new Konva.Text({ text:time.toZulu(-4)+'Z', x:x}).addTo(group).anchorBottomLeft({padX:1,padY:1})
                 }
                 time.setMinutes(30,0,0)
-                if (time>airplan.start) {
+                if (time>airplan.start[jd]) {
                     x = this.time2pixels(time,airplan)
                     new Konva.Line({
                         stroke:'black',
@@ -1129,7 +1142,9 @@ class View {
         }
 
         /** Timebox.Cycles */
-        Object.values(airplan.cycles).forEach((cycle,i)=>{
+        Object.values(airplan.cycles)
+        .filter(c=>c.start.julianDate()==this.date.julianDate() || c.end.julianDate()==this.date.julianDate())
+        .forEach((cycle,i)=>{
             let group = new Konva.Group({
                 id: `cycle${i}`,
                 x: this.time2pixels(cycle.start,airplan),
@@ -1158,6 +1173,7 @@ class View {
         this.squadrons = new Konva.Group({ y: 2*this.topRow, width: this.events.width(), height: this.events.height()-this.bottomRow-2*this.topRow}).addTo(this.events)
         
         let spacing = Object.keys(airplan.squadrons).length ? this.squadrons.height() / (Object.keys(airplan.squadrons).length) : this.squadrons.height()
+        
         // For each squadron
         Object.values(airplan.squadrons).forEach((squadron,i)=>{
             // Group for Squadron Text
@@ -1190,8 +1206,12 @@ class View {
             
             let lineCount = Object.values(airplan.lines).filter(l=>l.squadronID==squadron.ID).length
             let lineSpace = timebox.height() / (lineCount+1) //=> Heuristic for placing lines nicely
+            
             // For each line in this squadron, sorting lines by start time. Lines will flow top left to bottom right
-            Object.values(airplan.lines).filter(l=>l.squadronID==squadron.ID).sort((a,b)=>a.start-b.start).forEach((line,j)=>{
+            Object.values(airplan.lines)
+            .filter(l=>l.squadronID==squadron.ID)
+            .filter(l=>l.isEmpty || l.start?.julianDate()==this.date.julianDate() || l.end?.julianDate()==this.date.julianDate())
+            .sort((a,b)=>a.start-b.start).forEach((line,j)=>{
                 // Draw all of the sorties
                 line.sorties.forEach((sortie,k)=>{
                     // Group for sortie, to simplify drawing dimensions
@@ -1242,7 +1262,8 @@ class View {
     }
     
     time2pixels = (time,airplan) => {
-        let pixels = (time-airplan.start) * this.timebox.width()/(airplan.end-airplan.start)
+        let jd = this.date.julianDate()
+        let pixels = (time-airplan.start[jd]) * this.timebox.width()/(airplan.end[jd]-airplan.start[jd])
         pixels = pixels<0 ? 0 : pixels
         pixels = pixels>this.timebox.width() ? this.timebox.width(): pixels
         return pixels
