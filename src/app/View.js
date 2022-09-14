@@ -25,7 +25,7 @@ class View {
         this.date               = new Date()
         this.date.setHours(0,0,0,0)
         this.drawMenu();
-        this.drawViewDate();
+        // this.drawViewDate();
         this.drawSquadrons();
         $('[data-toggle="tooltip"]').tooltip({
             trigger: 'hover'
@@ -38,22 +38,30 @@ class View {
         this.date = date.julianDate()
     }
 
-    drawViewDate = () => {
+    drawViewDate = (handler) => {
         var html = `
         <details open>
         <summary class='h3'>View Date</summary>
         <div class='btn-group menu-group'>
-        <button id="prev-date"        class='btn btn-outline-primary' data-toggle='tooltip' data-placement='top' title='Yesterday'><i class='fas fa-arrow-left'></i> </button>
-        <button id="next-date"        class='btn btn-outline-primary' data-toggle='tooltip' data-placement='top' title='Tomorrow'> <i class="fas fa-arrow-right"></i></button>
-        </div>
-        <div>
-        ${this.date.toYYYYMMDD()}
+        <button id="prev-day"  class='btn btn-outline-primary' data-toggle='tooltip' data-placement='bottom' title='Prev Day'><i class='fas fa-arrow-left'></i> </button>
+        <input  id="curr-day"  class='btn btn-outline-primary' type='date'></input>
+        <button id="next-day"  class='btn btn-outline-primary' data-toggle='tooltip' data-placement='bottom' title='Next Day'> <i class="fas fa-arrow-right"></i></button>
         </div>
         </details>
         `
         $('#view-date').html(html)
-        this.date.next = $('#next-date')
-        this.date.prev = $('#prev-date')
+        this.viewDate = {}
+        this.viewDate.prevDay = $('#prev-day')
+        this.viewDate.currDay = $('#curr-day')
+        this.viewDate.nextDay = $('#next-day')
+        
+        this.viewDate.currDay.val(this.date.toYYYYMMDD())
+        this.viewDate.currDay.css('color','black')
+        this.viewDate.currDay.css('font-weight','bold')
+        this.viewDate.currDay.on('change',handler)
+        $('[data-toggle="tooltip"]').tooltip({
+            trigger: 'hover'
+        })
     }
 
     // ASCII Comments generated with: https://patorjk.com/software/taag with the Big font
@@ -207,8 +215,8 @@ class View {
             <details open>
             <summary class='h3'>Squadrons</summary>
             <div class='btn-group menu-group'>
-                <button id='add-squadron' class='btn btn-outline-primary add-squadron' data-toggle='tooltip' data-placement='top' title='Add Squadron'>   <i class='fas fa-plus'> </i> Add </button>
-                <button id='rem-squadron' class='btn btn-outline-danger rem-squadron'  data-toggle='tooltip' data-placement='top' title='Remove Bottom Squadron'><i class='fas fa-minus'></i> Rem</button>
+                <button id='add-squadron' class='btn btn-outline-primary add-squadron' data-toggle='tooltip' data-placement='bottom' title='Add Squadron'>   <i class='fas fa-plus'> </i> Add </button>
+                <button id='rem-squadron' class='btn btn-outline-danger rem-squadron'  data-toggle='tooltip' data-placement='bottom' title='Remove Bottom Squadron'><i class='fas fa-minus'></i> Rem</button>
             </div>
             </details>`
         $('#squadrons').html(html)
@@ -230,13 +238,13 @@ class View {
     }
 
     bindNextDay(handler) {
-        this.date.next.on('click', event=>{
+        this.viewDate.nextDay.on('click', event=>{
             handler()
         })
     }
 
     bindPrevDay(handler) {
-        this.date.prev.on('click', event=>{
+        this.viewDate.prevDay.on('click', event=>{
             handler()
         })
     }
