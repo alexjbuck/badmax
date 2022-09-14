@@ -59,12 +59,13 @@ class Model {
     updateCounts() {
         this.counts = {}
         this.sortieList.filter(s=>!s.isAlert).sort((a,b)=>a.start-b.start).forEach(s=>{
-            if (this.counts[[s.cycle.number,s.line.squadron.letter]] == undefined) {
-                this.counts[[s.cycle.number,s.line.squadron.letter]] = 1
+            let jd = s.start.julianDate()
+            if (this.counts[[s.cycle.number,s.line.squadron.letter,...jd]] == undefined) {
+                this.counts[[s.cycle.number,s.line.squadron.letter,...jd]] = 1
             } else {
-                this.counts[[s.cycle.number,s.line.squadron.letter]] += 1
+                this.counts[[s.cycle.number,s.line.squadron.letter,...jd]] += 1
             }
-            this.squadronCycleSortieMap[s.ID] = this.counts[[s.cycle.number,s.line.squadron.letter]]
+            this.squadronCycleSortieMap[s.ID] = this.counts[[s.cycle.number,s.line.squadron.letter,...jd]]
         })  
     }
 

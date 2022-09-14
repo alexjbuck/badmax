@@ -29,9 +29,6 @@ class View {
         $('[data-toggle="tooltip"]').tooltip({
             trigger: 'hover'
         })
-        $('[rel="tooltip"]').on('click', function () {
-            $(this).tooltip('hide')
-        })
     }
 
     setDate(date) {
@@ -368,7 +365,12 @@ class View {
         <details open>
         <summary class='h3'>Cycles</summary>
         <div class='list-group'>`
-        Object.values(airplan.cycles).forEach(cycle => {
+        Object.values(airplan.cycles)
+        .filter(cycle => {
+            return cycle.start?.julianDate().toString()===this.date.julianDate().toString() ||
+            cycle.end?.julianDate().toString()===this.date.julianDate().toString()
+        })
+        .forEach(cycle => {
             html += `<div id='`+cycle.ID+`' class='list-group-item list-group-item-action edit-cycle-menu'>`
             html +=     `<b>Cycle ${cycle.number}</b>: ${cycle.start.toHHMM()} - ${cycle.end.toHHMM()}`
             html +=     `<i id='`+cycle.ID+`' class='fas fa-trash-alt cycle-remove'></i> `
@@ -587,7 +589,7 @@ class View {
         Object.values(airplan.squadrons).forEach(squadron => {
             Object.values(airplan.lines)
             .filter(line=>line.squadronID == squadron.ID)
-            .filter(l=> l.isEmpty || l.start?.julianDate()==this.date.julianDate() || l.end?.julianDate()==this.date.julianDate())
+            .filter(l => l.isEmpty || l.start?.julianDate().toString()===this.date.julianDate().toString() || l.end?.julianDate().toString()===this.date.julianDate().toString())
             .sort((a,b)=>a.start-b.start)
             .forEach((line,i) => {
                 let display='open'
@@ -1181,7 +1183,7 @@ class View {
 
         /** Timebox.Cycles */
         Object.values(airplan.cycles)
-        .filter(c=>c.start.julianDate()==this.date.julianDate() || c.end.julianDate()==this.date.julianDate())
+        .filter(c=>c.start.julianDate().toString()===this.date.julianDate().toString() || c.end.julianDate().toString()==this.date.julianDate().toString())
         .forEach((cycle,i)=>{
             let group = new Konva.Group({
                 id: `cycle${i}`,
@@ -1232,7 +1234,7 @@ class View {
             group = new Konva.Group({x: this.squadrons.width()-this.rightCol/2, y: (i+.5)*spacing}).addTo(this.squadrons).anchorCenter()
             
             // D/N Totals Text
-            new Konva.Text({ text: squadron.day + '/' + squadron.night }).addTo(group).anchorCenter()
+            new Konva.Text({ text: squadron.day[jd] + '/' + squadron.night[jd] }).addTo(group).anchorCenter()
             
             // Squadron.Timebox
             let timebox = new Konva.Group({
@@ -1248,7 +1250,7 @@ class View {
             // For each line in this squadron, sorting lines by start time. Lines will flow top left to bottom right
             Object.values(airplan.lines)
             .filter(l=>l.squadronID==squadron.ID)
-            .filter(l=>l.isEmpty || l.start?.julianDate()==this.date.julianDate() || l.end?.julianDate()==this.date.julianDate())
+            .filter(l=>l.isEmpty || l.start?.julianDate().toString()===this.date.julianDate().toString() || l.end?.julianDate().toString()===this.date.julianDate().toString())
             .sort((a,b)=>a.start-b.start).forEach((line,j)=>{
                 // Draw all of the sorties
                 line.sorties.forEach((sortie,k)=>{

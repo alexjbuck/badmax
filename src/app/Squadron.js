@@ -23,16 +23,22 @@ class Squadron {
     }
     get day() {
         if (this.parent) {
-            let sr = this.parent.sunrise
-            let ss = this.parent.sunset
-            return this.sorties.filter(s=>!s.isAlert).filter(s=> s.start > sr && s.end < ss).length
+            return new Proxy({},{get:(obj,key) => {
+                let sr = this.parent.sunrise
+                let ss = this.parent.sunset
+                let jd = key.split(',').map(Number)
+                return this.sorties.filter(s=>!s.isAlert).filter(s=>s.start.julianDate().toString()===jd.toString()).filter(s=> s.start > sr[jd] && s.end < ss[jd]).length
+            }})
         }
     }
     get night() {
         if (this.parent) {
-            let sr = this.parent.sunrise
-            let ss = this.parent.sunset
-            return this.sorties.filter(s=>!s.isAlert).filter(s=> s.start < sr || s.end > ss).length
+            return new Proxy({},{get:(obj,key)=>{
+                let sr = this.parent.sunrise
+                let ss = this.parent.sunset
+                let jd = key.split(',').map(Number)
+                return this.sorties.filter(s=>!s.isAlert).filter(s=>s.start.julianDate().toString()===jd.toString()).filter(s => s.start < sr[jd] && s.start || s.end > ss[jd]).length
+            }})
         }
     }
 }

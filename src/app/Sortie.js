@@ -92,19 +92,20 @@ class Sortie extends Event {
      * */
     get cycle() {
         if (this.parent) {
-            let sorted = Object.values(this.parent.cycles).sort((a,b)=>a.start-b.start);
-            if (sorted.length<1) {
+            let cycles = this.parent.cycleList.filter(c=>c.start.julianDate().toString()===this.start.julianDate().toString())
+
+            if (cycles.length<1) {
                 return {number:0};
             }
-            if (this.start < sorted[0].start) {
+            if (this.start < cycles[0].start) {
                 // If the start is before the first cycle, it's cycle 0.
                 return {number:0};
-            } else if (this.start >= sorted[sorted.length-1].end) {
+            } else if (this.start >= cycles[cycles.length-1].end) {
                 // If the start is after the last cycle, it's the last cycle + 1
-                return {number:sorted.length+1};
+                return {number:cycles.length+1};
             } else {
                 // Otherwise, it's the first cycle that starts before and ends after the start.
-                let cycle = sorted.find(c => c.start <= this.start && c.end > this.start)
+                let cycle = cycles.find(c => c.start <= this.start && c.end > this.start)
                 if (cycle == undefined) {
                     1+1;
                 }
