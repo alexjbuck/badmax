@@ -48,6 +48,7 @@ class View {
         <div>
         ${this.date.toYYYYMMDD()}
         </div>
+        </details>
         `
         $('#view-date').html(html)
         this.date.next = $('#next-date')

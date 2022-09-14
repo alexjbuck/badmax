@@ -69,6 +69,7 @@ class Controller {
         this.airplan.addSquadron('Squadron ' + (Object.keys(this.airplan.squadrons).length+1),'CS','TMS','MODEX')
     }
     handleReset = () => {
+        this.view.menu.file.reset.tooltip('hide');
         this.init();
     }
     handleRefresh = () => { this.onAirplanChanged(); this.view.fitStageIntoParentContainer() }
@@ -202,7 +203,7 @@ class Controller {
             let endCycleID = null
             let startType = 'pull'
             let endType = 'stuff'
-            if(this.airplan.lines[lineID].end != undefined) {
+            if(this.airplan.lines[lineID].end != undefined && this.airplan.lines[lineID].end.julianDate().toString()===jd.toString()) {
                 start = new Date(this.airplan.lines[lineID].end)
                 end = new Date(start.valueOf()+3600*1000)
             } else if ( this.airplan.cycleList.length>0 && this.airplan.cycleList[0].end != undefined) {
