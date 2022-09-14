@@ -1,5 +1,10 @@
 class Controller {
     constructor() {
+        this.init()
+        // Draw the spash page help.
+        this.view.drawHelp()
+    }
+    init() {
         this.airplan = new Model();
         this.view = new View();
         window.addEventListener('resize', this.view.fitStageIntoParentContainer);
@@ -20,9 +25,7 @@ class Controller {
         this.view.bindMenuHelp(this.handleHelp)
         this.view.bindMenuFeedback(this.handleFeedback)
         this.view.bindMenuSettings(this.handleSettings)
-        
-        // Draw the spash page help.
-        this.view.drawHelp()
+
     }
     
     /**
@@ -56,6 +59,7 @@ class Controller {
 
         this.view.bindCanvasClick(this.handleCanvasClick)
         this.view.fitStageIntoParentContainer();
+        console.log('Full Redraw Complete')
     }
     
     /**
@@ -64,7 +68,9 @@ class Controller {
     handleAddPlaceholderSquadron = () => {
         this.airplan.addSquadron('Squadron ' + (Object.keys(this.airplan.squadrons).length+1),'CS','TMS','MODEX')
     }
-    handleReset = () => { this.airplan.init() }
+    handleReset = () => {
+        this.init();
+    }
     handleRefresh = () => { this.onAirplanChanged(); this.view.fitStageIntoParentContainer() }
     handleLoadFile = (file) => {
         let reader = new FileReader();
@@ -85,9 +91,10 @@ class Controller {
         var pdf = new jspdf.jsPDF('l', 'in', [8.5, 11]);
         let imgData = this.view.stage.toDataURL({mimeType: 'image/png', quality: 1, pixelRatio: 3});
         pdf.addImage(imgData, 'JPEG', m*w/2, m*h/2, w*(1-m), h*(1-m), undefined, 'FAST');
-        pdf.save('airplan_'+this.airplan.date.toYYYYMMDD()+'.pdf');    
+        pdf.save('airplan_'+this.airplan.date.toYYYYMMDD()+'.pdf');
+        console.log(`File exported as: ${'airplan_'+this.airplan.date.toYYYYMMDD()+'.pdf'}`)
     }
-    
+
     handleHelp = () => { this.view.drawHelp() }
     
     handleFeedback = () => {
@@ -104,13 +111,13 @@ class Controller {
     }
 
     handleNextDay = () => {
-        this.view.date.setDate(this.view.date.getUTCDate()+1)
+        this.view.date.setDate(this.view.date.getDate()+1)
         console.log(`Shift to next day: ${this.view.date.toYYYYMMDD()}`)
         this.onAirplanChanged()
     }
 
     handlePrevDay = () => {
-        this.view.date.setDate(this.view.date.getUTCDate()-1)
+        this.view.date.setDate(this.view.date.getDate()-1)
         console.log(`Shift to prev day: ${this.view.date.toYYYYMMDD()}`)
         this.onAirplanChanged()
     }
