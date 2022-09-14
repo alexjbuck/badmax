@@ -35,7 +35,7 @@ class Controller {
     onAirplanChanged = () => {
         // Redraw the view.
         this.view.drawStage(this.airplan);
-        this.view.drawViewDate();
+        this.view.drawViewDate(this.handleJumpDay);
         this.view.drawCycleList(this.airplan);
         this.view.drawSortieList(this.airplan);        
         
@@ -83,7 +83,7 @@ class Controller {
     }
     handleSaveFile = () => {
         let file = new Blob([JSON.stringify(this.airplan,getCircularReplacer())], {type: "application/json"})
-        saveAs(file,this.airplan.date.toYYYYMMDD()+".json")
+        saveAs(file,this.airplan.startDate.toYYYYMMDD()+".json")
     }
     handleExportFile = () => {
         let w = 11
@@ -114,12 +114,22 @@ class Controller {
     handleNextDay = () => {
         this.view.date.setDate(this.view.date.getDate()+1)
         console.log(`Shift to next day: ${this.view.date.toYYYYMMDD()}`)
+        this.view.viewDate.nextDay.tooltip('hide');
         this.onAirplanChanged()
     }
 
     handlePrevDay = () => {
         this.view.date.setDate(this.view.date.getDate()-1)
         console.log(`Shift to prev day: ${this.view.date.toYYYYMMDD()}`)
+        this.view.viewDate.prevDay.tooltip('hide');
+        this.onAirplanChanged()
+    }
+
+    handleJumpDay = (event) => {
+        let d = new Date(event.target.value)
+        d.setMinutes(d.getMinutes()+d.getTimezoneOffset())
+        this.view.date = new Date(d)
+        console.log(`Jump to day: ${this.view.date.toYYYYMMDD()}`)
         this.onAirplanChanged()
     }
     
