@@ -82,9 +82,25 @@ Date.prototype.julianDay = function() {
 }
 
 Date.prototype.julianDate = function() {
-    // Make new date of current year but january first at midnight.
-    let first = new Date(this.getFullYear(),0,1,0,0,0,0)
-    return Math.ceil(this.julianDay()-first.julianDay())
+    // Make new date of current year but january first at midnight GMT
+    let approxfirst = new Date(this.getFullYear(),0,3)
+    let first = new Date(this.getFullYear(),0,1,0,-approxfirst.getTimezoneOffset())
+    return [this.getFullYear(),Math.ceil(this.julianDay()-this.getTimezoneOffset()/60/24-first.julianDay())]
+}
+
+Date.fromJulianDate = function(jd) {
+    let [year,doy] = jd
+    // let year = Math.floor(jd/1000)
+    // let doy = jd - year * 1000
+    return new Date(year,0,doy)
+}
+
+function prefixPlus(n) {
+    if(n>=0){
+        return '+'+n
+    } else {
+        return n.toString()
+    }
 }
 
 Konva.Node.prototype.drawBoundingBox = function({stroke='black',strokeWidth=1, name='box', fillEnabled='false', fill='',opacity=1,zIndex=0, minSize=15}={}){
