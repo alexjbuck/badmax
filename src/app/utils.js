@@ -84,8 +84,10 @@ Date.prototype.julianDay = function() {
 Date.prototype.julianDate = function() {
     // Make new date of current year but january first at midnight GMT
     let approxfirst = new Date(this.getFullYear(),0,3)
-    let first = new Date(this.getFullYear(),0,1,0,-approxfirst.getTimezoneOffset())
-    return [this.getFullYear(),Math.ceil(this.julianDay()-this.getTimezoneOffset()/60/24-first.julianDay())]
+    let first = new Date(this.getFullYear(),0,1,0)
+    let elapsed = this.julianDay()-first.julianDay() + (first.getTimezoneOffset() - this.getTimezoneOffset())/60/24
+    elapsed = Math.floor(Math.round(elapsed*86400000)/86400000)+1
+    return [this.getFullYear() , elapsed]
 }
 
 Date.fromJulianDate = function(jd) {
