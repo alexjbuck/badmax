@@ -7,6 +7,10 @@ class View {
     * @param {Model} airplan 
     */
     constructor() {
+        this.init()
+    }
+    
+    init(){
         this.app                = this.getElement('#view');
         this.margin             = {top: 10, right: 10, bottom: 10, left: 10};
         this.sceneWidth         = 1100;
@@ -22,8 +26,11 @@ class View {
         this.drawMenu();
         this.drawViewDate();
         this.drawSquadrons();
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip()
+        $('[data-toggle="tooltip"]').tooltip({
+            trigger: 'hover'
+        })
+        $('[rel="tooltip"]').on('click', function () {
+            $(this).tooltip('hide')
         })
     }
 
