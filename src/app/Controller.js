@@ -32,11 +32,15 @@ class Controller {
     onAirplanChanged = () => {
         // Redraw the view.
         this.view.drawStage(this.airplan);
+        this.view.drawViewDate();
         this.view.drawCycleList(this.airplan);
         this.view.drawSortieList(this.airplan);        
         
         // Bind items in the stage and list view.
         // We need to rebind each time we draw because the elements are recreated.
+        this.view.bindNextDay(this.handleNextDay)
+        this.view.bindPrevDay(this.handlePrevDay)
+
         this.view.bindAddCycleMenu(this.handleAddCycleMenu)
         this.view.bindEditCycleMenu(this.handleEditCycleMenu)
         this.view.bindEditCycleRemove(this.handleRemoveCycle)
@@ -83,6 +87,7 @@ class Controller {
         pdf.addImage(imgData, 'JPEG', m*w/2, m*h/2, w*(1-m), h*(1-m), undefined, 'FAST');
         pdf.save('airplan_'+this.airplan.date.toYYYYMMDD()+'.pdf');    
     }
+    
     handleHelp = () => { this.view.drawHelp() }
     
     handleFeedback = () => {
@@ -97,8 +102,19 @@ class Controller {
         $('#timelineview').prop('checked', this.view.timelineview).trigger('change')
         this.view.bindSettingsSubmit(this.handleSettingsSubmit)
     }
-    
 
+    handleNextDay = () => {
+        this.view.date.setDate(this.view.date.getUTCDate()+1)
+        console.log(`Shift to next day: ${this.view.date.toYYYYMMDD()}`)
+        this.onAirplanChanged()
+    }
+
+    handlePrevDay = () => {
+        this.view.date.setDate(this.view.date.getUTCDate()-1)
+        console.log(`Shift to prev day: ${this.view.date.toYYYYMMDD()}`)
+        this.onAirplanChanged()
+    }
+    
     /**
      * ADD/EDIT MENU HANDLERS
      */

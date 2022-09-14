@@ -20,6 +20,7 @@ class View {
         this.timelineview       = false;
         this.date               = new Date()
         this.drawMenu();
+        this.drawViewDate();
         this.drawSquadrons();
         $(function () {
             $('[data-toggle="tooltip"]').tooltip()
@@ -31,6 +32,24 @@ class View {
         date.setMinutes(date.getMinutes()+date.getTimezoneOffset())
         this.date = date.julianDate()
     }
+
+    drawViewDate = () => {
+        var html = `
+        <details open>
+        <summary class='h3'>View Date</summary>
+        <div class='btn-group menu-group'>
+        <button id="prev-date"        class='btn btn-outline-primary' data-toggle='tooltip' data-placement='top' title='Yesterday'><i class='fas fa-arrow-left'></i> </button>
+        <button id="next-date"        class='btn btn-outline-primary' data-toggle='tooltip' data-placement='top' title='Tomorrow'> <i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div>
+        ${this.date.toYYYYMMDD()}
+        </div>
+        `
+        $('#view-date').html(html)
+        this.date.next = $('#next-date')
+        this.date.prev = $('#prev-date')
+    }
+
     // ASCII Comments generated with: https://patorjk.com/software/taag with the Big font
     //    __  __                      __      __ _                      
     //   |  \/  |                     \ \    / /(_)                     
@@ -183,7 +202,7 @@ class View {
             <summary class='h3'>Squadrons</summary>
             <div class='btn-group menu-group'>
                 <button id='add-squadron' class='btn btn-outline-primary add-squadron' data-toggle='tooltip' data-placement='top' title='Add Squadron'>   <i class='fas fa-plus'> </i> Add </button>
-                <button id='rem-squadron' class='btn btn-outline-danger rem-squadron'  data-toggle='tooltip' data-placement='top' title='Remove Squadron'><i class='fas fa-minus'></i> Rem</button>
+                <button id='rem-squadron' class='btn btn-outline-danger rem-squadron'  data-toggle='tooltip' data-placement='top' title='Remove Bottom Squadron'><i class='fas fa-minus'></i> Rem</button>
             </div>
             </details>`
         $('#squadrons').html(html)
@@ -201,6 +220,18 @@ class View {
             date.setMinutes(date.getMinutes()+date.getTimezoneOffset())
             handler(timelineview,date)
             closeModal()
+        })
+    }
+
+    bindNextDay(handler) {
+        this.date.next.on('click', event=>{
+            handler()
+        })
+    }
+
+    bindPrevDay(handler) {
+        this.date.prev.on('click', event=>{
+            handler()
         })
     }
 
@@ -1000,7 +1031,7 @@ class View {
         
         new Konva.Text({
             id: 'title.title',
-            text: airplan.title,
+            text: airplan.title[jd],
             fontSize: config.title.fontSize,
             fontFamily: config.title.fontFamily,
         }).addTo(this.stage.findOne('#title')).anchorTopMiddle()
@@ -1008,7 +1039,7 @@ class View {
         new Konva.Text({
             id: 'title.subtitle',
             y: this.stage.findOne('#title.title').height() + config.subtitle.padding,
-            text: `${airplan.subtitle}: ${this.date.toYYYYMMDD()}`,
+            text: `${airplan.subtitle[jd]}: ${this.date.toYYYYMMDD()}`,
             fontSize : config.subtitle.fontSize,
         }).addTo(this.stage.findOne('#title')).anchorTopMiddle()
         
@@ -1077,7 +1108,7 @@ class View {
         }).addTo(this.events)
         
         /** Sunrise Group */
-        new Konva.Group({id:'sunrise',name:'timeline', x: this.time2pixels(airplan.sunrise,airplan), y: this.topRow }).addTo(this.timebox).anchorCenter()
+        new Konva.Group({id:'sunrise',name:'timeline', x: this.time2pixels(airplan.sunrise[jd],airplan), y: this.topRow }).addTo(this.timebox).anchorCenter()
         
         // Sunrise
         new Konva.Arc({ angle: 180, outerRadius: this.topRow*0.75, clockwise: true, stroke:'black', strokeWidth:1 }).addTo(this.stage.findOne('#sunrise'));
@@ -1088,7 +1119,7 @@ class View {
         this.stage.findOne('#sunrise').fitToChildren().addHighlightBox()
         
         /** Sunset Group */
-        new Konva.Group({id:'sunset',name:'timeline', x: this.time2pixels(airplan.sunset,airplan), y: this.topRow }).addTo(this.timebox).anchorCenter()
+        new Konva.Group({id:'sunset',name:'timeline', x: this.time2pixels(airplan.sunset[jd],airplan), y: this.topRow }).addTo(this.timebox).anchorCenter()
         
         // Sunset
         new Konva.Arc({ angle: 180, outerRadius: this.topRow*0.75, clockwise: true, stroke:'black', fill: 'black', strokeWidth:1 }).addTo(this.stage.findOne('#sunset'));
