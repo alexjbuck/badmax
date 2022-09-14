@@ -7,19 +7,20 @@ class Model {
      * @method init Initializes the model with default values.
      */
     init() {
-        let jd = new Date().julianDate()
-        this._start          = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : new Date( new Date().setHours(8,0,0,0) )})
-        this._end            = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : new Date( new Date().setHours(18,0,0,0) )})
+        this._start          = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : new Date( Date.fromJulianDate(key.split(',').map(Number)).setHours(8,0,0,0) )})
+        this._start[new Date().julianDate()] = this._start[new Date().julianDate()]
+        this._end            = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : new Date( Date.fromJulianDate(key.split(',').map(Number)).setHours(18,0,0,0) )})
         this.title           = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : "Airplan Title"})
         this.subtitle        = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : "Subtitle"})
-        this._sunrise        = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : new Date( new Date().setHours(6,46,0,0) )})
-        this._sunset         = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : new Date( new Date().setHours(19,29,0,0) )})
-        this._moonrise       = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : new Date( new Date().setHours(10,8,0,0) )})
-        this._moonset        = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : new Date( new Date().setHours(4,20,0,0) )})
+        this._sunrise        = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : new Date( Date.fromJulianDate(key.split(',').map(Number)).setHours(6,46,0,0) )})
+        this._sunset         = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : new Date( Date.fromJulianDate(key.split(',').map(Number)).setHours(19,29,0,0) )})
+        this._moonrise       = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : new Date( Date.fromJulianDate(key.split(',').map(Number)).setHours(10,8,0,0) )})
+        this._moonset        = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : new Date( Date.fromJulianDate(key.split(',').map(Number)).setHours(4,20,0,0) )})
         this.moonphase       = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : "__%"})
-        this._flightquarters = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : new Date( new Date() )})
-        this._heloquarters   = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : new Date( new Date() )})
-        this.variation      =  new Proxy({},{get:(obj,key) => key in obj ? obj[key] : "__E/W"})
+        this._flightquarters = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : new Date( Date.fromJulianDate(key.split(',').map(Number)).setHours(11,30,0,0) )})
+        this._heloquarters   = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : new Date( Date.fromJulianDate(key.split(',').map(Number)).setHours(10,0,0,0) )})
+        this.variation       = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : "__E/W"})
+        this.timezone        = new Proxy({},{get:(obj,key) => key in obj ? obj[key] : 'UTC'+Date.fromJulianDate(key.split(',').map(Number)).getTimezoneOffset()/-60})
         this.lines          = {};
         this.sorties        = {}
         this.squadrons      = {};
@@ -233,12 +234,12 @@ class Model {
         return Object.values(this.cycles).sort((a,b)=>a.start-b.start)
     }
 
-    get timezone() {
-        return Object.keys(this.start).reduce((obj,jd) => {
-            obj[jd] = 'UTC'+this.start[jd].getTimezoneOffset()/-60
-            return obj
-        },{})
-    }
+    // get timezone() {
+    //     return Object.keys(this.start).reduce((obj,jd) => {
+    //         obj[jd] = 'UTC'+this.start[jd].getTimezoneOffset()/-60
+    //         return obj
+    //     },new Proxy({},{get:(obj,key) => key in obj ? obj[key] : 'UTC'+new Date( new Date().setHours(0,0,0,0) ).getTimezoneOffset()/-60}))
+    // }
     /**
      * Default behavior for end => start mapping
      */
@@ -269,7 +270,7 @@ class Model {
     }
 
     get startDate() {
-        let start = this.start[Math.min(Object.keys(this.start))]
+        let start = this.start[Math.min(Object.keys(this.start).map(k=>Date.fromJulianDate(k.split(','))))]
         let firstSortie = Object.values(this.sorties).reduce((a,b)=>{
             return a.start<b.start? a : b
         },{start: Infinity})
