@@ -106,7 +106,7 @@ class Controller {
     }
 
     handleSettings = () => {
-        this.view.drawSettingsMenu()
+        this.view.drawSettingsMenu(this.airplan.startDate)
         $('#timelineview').prop('checked', this.view.timelineview).trigger('change')
         this.view.bindSettingsSubmit(this.handleSettingsSubmit)
     }

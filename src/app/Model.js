@@ -271,7 +271,7 @@ class Model {
     }
 
     get startDate() {
-        let start = this.start[Math.min(Object.keys(this.start).map(k=>Date.fromJulianDate(k.split(','))))]
+        let start =Object.keys(this.start).map(k=>Date.fromJulianDate(k.split(','))).reduce((a,b)=>{return a<b?a:b},Infinity)
         let firstSortie = Object.values(this.sorties).reduce((a,b)=>{
             return a.start<b.start? a : b
         },{start: Infinity})

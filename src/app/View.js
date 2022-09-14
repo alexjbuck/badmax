@@ -23,6 +23,7 @@ class View {
         this.bottomRow          = 20;
         this.timelineview       = false;
         this.date               = new Date()
+        this.date.setHours(0,0,0,0)
         this.drawMenu();
         this.drawViewDate();
         this.drawSquadrons();
@@ -251,16 +252,24 @@ class View {
     /**
      * @method drawSettings
      */
-    drawSettingsMenu() {
+    drawSettingsMenu(startDate) {
         let html = `
         <h3>Settings</h3>
         <div class='form-group row align-items-center'>
-            <label for='timelineview' class='col-12 col-md-3 text-left text-md-right'>Timeline Grid</label>
+            <label for='timelineview' class='col-12 col-md-3 text-left text-md-right'>Timeline Grid:</label>
             <input type='checkbox' class='mr-5 align-left' id='timelineview'></input>
         </div>
         <div class='form-group row align-items-center'>
-            <label for='setdate' class='col-12 col-md-3 text-left text-md-right'>Change Date</label>
+            <div class='col-12 col-md-3 text-left text-md-right'>Current File Start Date:</div>
+            <div class='mr-5 align-left'>${startDate.toLocaleDateString()}</div>
+        </div>
+        <div class='form-group row align-items-center'>
+            <label for='setdate' class='col-12 col-md-3 text-left text-md-right'>Shift Start Date to:</label>
             <input type='date' class='mr-5 align-left' id='setdate'></input>
+        </div>
+        <div style='display:none' id='shiftDaysDiv' class='form-group row align-items-center'>
+            <div class='col-12 col-md-3 text-left text-md-right'><b>Shift everything by</b></div>
+            <b><div class='mr-5 align-left' id='shiftAmount'></div></b>
         </div>
         <div class='btn-group'>
             <button class='btn btn-primary settings-submit'>Submit</button>
@@ -268,6 +277,13 @@ class View {
         `
         openModal(html)
         this.settingsSubmit = $('.settings-submit')
+        $('#setdate').on('change', event=>{
+            let d = new Date(event.target.value)
+            d.setMinutes(d.getMinutes()+d.getTimezoneOffset())
+            let shift = (d - this.date)/86400000
+            $('#shiftDaysDiv').show()
+            $('#shiftAmount').html(`${shift>=0?'+':''}${shift} ${[-1,1].includes(shift)?'day':'days'}`)
+        })
     }
 
     //     _____                           _                      ____   _             _  _                    
