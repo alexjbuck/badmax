@@ -228,11 +228,15 @@ class View {
     bindSettingsSubmit(handler) {
         this.settingsSubmit.on('click', event=>{
             let timelineview = $('#timelineview').prop('checked')
+
+            let defaultCycleLength = $('#defaultCycleLength')[0].valueAsNumber
+            let defaultSortieLength = $('#defaultSortieLength')[0].valueAsNumber
+
             // Parse the date from Date input. This will be midnight *GMT*. 
             let date = new Date(Date.parse($('#setdate').val()))
             // Adjust the time by the timezoneOffset so that it is midnight *LOCAL* time.
             date.setMinutes(date.getMinutes()+date.getTimezoneOffset())
-            handler(timelineview,date)
+            handler(timelineview,date,defaultCycleLength,defaultSortieLength)
             closeModal()
         })
     }
@@ -260,12 +264,20 @@ class View {
     /**
      * @method drawSettings
      */
-    drawSettingsMenu(startDate) {
+    drawSettingsMenu(startDate,timelineview, defaultCycleLength, defaultSortieLength) {
         let html = `
         <h3>Settings</h3>
         <div class='form-group row align-items-center'>
             <label for='timelineview' class='col-12 col-md-3 text-left text-md-right'>Timeline Grid:</label>
             <input type='checkbox' class='mr-5 align-left' id='timelineview'></input>
+        </div>
+        <div class='form-group row align-items-center'>
+            <label for='defaultCycleLength' class='col-12 col-md-3 text-left text-md-right'>Default Cycle Length:</label>
+            <input type='number' class='mr-5 align-left' id='defaultCycleLength'></input>minutes
+        </div>
+        <div class='form-group row align-items-center'>
+            <label for='defaultSortieLength' class='col-12 col-md-3 text-left text-md-right'>Default Sortie Length:</label>
+            <input type='number' class='mr-5 align-left' id='defaultSortieLength'></input>minutes
         </div>
         <div class='form-group row align-items-center'>
             <div class='col-12 col-md-3 text-left text-md-right'>Current File Start Date:</div>
@@ -284,6 +296,9 @@ class View {
         </div>
         `
         openModal(html)
+        $('#timelineview').prop('checked', timelineview).trigger('change')
+        $('#defaultCycleLength').val(defaultCycleLength)
+        $('#defaultSortieLength').val(defaultSortieLength)
         this.settingsSubmit = $('.settings-submit')
         $('#setdate').on('change', event=>{
             let d = new Date(event.target.value)

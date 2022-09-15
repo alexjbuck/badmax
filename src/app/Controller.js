@@ -25,7 +25,9 @@ class Controller {
         this.view.bindMenuHelp(this.handleHelp)
         this.view.bindMenuFeedback(this.handleFeedback)
         this.view.bindMenuSettings(this.handleSettings)
-
+        
+        this.defaultSortieLength = 90 // minutes
+        this.defaultCycleLength = 75 // minutes
     }
     
     /**
@@ -106,8 +108,7 @@ class Controller {
     }
 
     handleSettings = () => {
-        this.view.drawSettingsMenu(this.airplan.startDate)
-        $('#timelineview').prop('checked', this.view.timelineview).trigger('change')
+        this.view.drawSettingsMenu(this.airplan.startDate, this.view.timelineview, this.defaultCycleLength, this.defaultSortieLength)
         this.view.bindSettingsSubmit(this.handleSettingsSubmit)
     }
 
@@ -154,9 +155,9 @@ class Controller {
         if (this.airplan.cycleList.filter(c=>c.start.julianDate().toString()===jd.toString()).length > 0) {
             start = new Date(this.airplan.cycleList.at(-1).end)
         } else {
-            start = new Date(this.airplan.start[jd].valueOf() + 3600*1000)
+            start = new Date(this.airplan.start[jd].valueOf() + 60*60*1000)
         }
-        end = new Date(start.valueOf() + 3600*1000)
+        end = new Date(start.valueOf() + this.defaultCycleLength*60*1000)
         $('#start').val(start.toLocalTimeString())
         $('#end').val(end.toLocalTimeString())
         this.view.bindAddCycleSubmit(this.handleAddCycle) 
@@ -215,13 +216,13 @@ class Controller {
             let endType = 'stuff'
             if(this.airplan.lines[lineID].end != undefined && this.airplan.lines[lineID].end.julianDate().toString()===jd.toString()) {
                 start = new Date(this.airplan.lines[lineID].end)
-                end = new Date(start.valueOf()+3600*1000)
+                end = new Date(start.valueOf()+this.defaultSortieLength*60*1000)
             } else if ( this.airplan.cycleList.filter(c=>c.start.julianDate().toString()===jd.toString()).length>0 && this.airplan.cycleList.filter(c=>c.start.julianDate().toString()===jd.toString())[0].end != undefined) {
                 start = new Date(this.airplan.cycleList.filter(c=>c.start.julianDate().toString()===jd.toString())[0].start)
                 end = new Date(this.airplan.cycleList.filter(c=>c.start.julianDate().toString()===jd.toString())[0].end)
             } else {
                 start = new Date(this.airplan.start[jd])
-                end = new Date(start.valueOf()+3600*1000)
+                end = new Date(start.valueOf()+this.defaultSortieLength*60*1000)
             }
             // Match start type to prev sortie end type
             if (this.airplan.lines[lineID].sorties.length>0) {
@@ -357,21 +358,20 @@ class Controller {
         this.onAirplanChanged();
     }
 
-    handleSettingsSubmit = (timelineview,shiftDate) => {
-        let year = shiftDate.getFullYear()
-        let month = shiftDate.getMonth()
-        let day = shiftDate.getDay()
-        
-        let startDate = new Date(this.airplan.startDate)
-        shiftDate.setHours(0,0,0,0)
-        startDate.setHours(0,0,0,0)
-        let shift = Math.round((shiftDate - startDate)/86400000)
+    handleSettingsSubmit = (timelineview,shiftDate,defaultCycleLength,defaultSortieLength) => {
+        this.defaultCycleLength = defaultCycleLength
+        this.defaultSortieLength = defaultSortieLength
         this.view.timelineview = timelineview
-        if(shift!=0) {
-            this.airplan.shiftDates(shift)
-            this.view.date.setDate(this.view.date.getDate()+shift)
+        if(shiftDate!='Invalid Date'){
+            let startDate = new Date(this.airplan.startDate)
+            shiftDate.setHours(0,0,0,0)
+            startDate.setHours(0,0,0,0)
+            let shift = Math.round((shiftDate - startDate)/86400000)
+            if(shift!=0) {
+                this.airplan.shiftDates(shift)
+                this.view.date.setDate(this.view.date.getDate()+shift)
+            }
         }
         this.onAirplanChanged();
-        
     }
 }
