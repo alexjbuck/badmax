@@ -283,6 +283,24 @@ class Model {
         return new Date(Math.min(firstSortie.start,firstCycle.start,start))
     }
 
+    get dateList() {
+        let dates = new Set()
+        let fields = ['start','end','title','subtitle','sunrise','sunset','moonrise','moonset','moonphase','flightquarters','heloquarters','variation','timezone']
+        fields.forEach(k=>{
+            Object.keys(this[k]).forEach(jd=>{
+                dates.add(Date.fromJulianDate(jd.split(',')).valueOf())
+            })
+        })
+        this.sortieList.forEach(s=>{
+            dates.add(Date.fromJulianDate(s.start.julianDate()).valueOf())
+        })
+        this.cycleList.forEach(c=>{
+            dates.add(Date.fromJulianDate(c.start.julianDate()).valueOf())
+        })
+        return [...dates.values()].sort().map(d=>new Date(d))
+
+    }
+
     /**
      * Shift all dates in the Model by `shift` amount.
      * @param {Number} shift Number of days to shift all dates by

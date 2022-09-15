@@ -88,6 +88,8 @@ class Controller {
         saveAs(file,this.airplan.startDate.toYYYYMMDD()+".json")
     }
     handleExportFile = () => {
+        let startDay = this.view.date
+        let dates = this.airplan.dateList
         let w = 11
         let h = 8.5
         let m = .01
