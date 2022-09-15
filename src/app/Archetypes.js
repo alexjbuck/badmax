@@ -28,5 +28,27 @@ class Event {
     get night() {
         return false
     }
+
+    /**
+     * Shift the start and end Date objects by `shift` days. Times are not adjusted (except for when DST changes).
+     * Dates are stored as GMT dates, so when DST shifts, the times will shift by one hour.
+     * @param {Number} shift The integer number of days to shift.
+     */
+    shiftDates(shift) {
+        this.start.setDate(this.start.getDate()+shift)
+        this.end.setDate(this.end.getDate()+shift)
+    }
+
+    /**
+     * 
+     * @param {Date} date The date to set all Date objects to (year,month,day). Time is not adjusted.
+     */
+    setDates(date) {
+        let year = date.getFullYear()
+        let month = date.getMonth()
+        let day = date.getDate()
+        this.start.setFullYear(year,month,day)
+        this.end.setFullYear(year,month,day)
+    }
     
 }

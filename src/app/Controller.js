@@ -1,5 +1,10 @@
 class Controller {
     constructor() {
+        this.init()
+        // Draw the spash page help.
+        this.view.drawHelp()
+    }
+    init() {
         this.airplan = new Model();
         this.view = new View();
         window.addEventListener('resize', this.view.fitStageIntoParentContainer);
@@ -19,10 +24,10 @@ class Controller {
         this.view.bindMenuExport(this.handleExportFile)
         this.view.bindMenuHelp(this.handleHelp)
         this.view.bindMenuFeedback(this.handleFeedback)
-        this.view.bindMenuSettings(this.handleEditHeaderMenu)
+        this.view.bindMenuSettings(this.handleSettings)
         
-        // Draw the spash page help.
-        this.view.drawHelp()
+        this.defaultSortieLength = 90 // minutes
+        this.defaultCycleLength = 75 // minutes
     }
     
     /**
@@ -32,11 +37,15 @@ class Controller {
     onAirplanChanged = () => {
         // Redraw the view.
         this.view.drawStage(this.airplan);
+        this.view.drawViewDate(this.handleJumpDay);
         this.view.drawCycleList(this.airplan);
         this.view.drawSortieList(this.airplan);        
         
         // Bind items in the stage and list view.
         // We need to rebind each time we draw because the elements are recreated.
+        this.view.bindNextDay(this.handleNextDay)
+        this.view.bindPrevDay(this.handlePrevDay)
+
         this.view.bindAddCycleMenu(this.handleAddCycleMenu)
         this.view.bindEditCycleMenu(this.handleEditCycleMenu)
         this.view.bindEditCycleRemove(this.handleRemoveCycle)
@@ -52,6 +61,7 @@ class Controller {
 
         this.view.bindCanvasClick(this.handleCanvasClick)
         this.view.fitStageIntoParentContainer();
+        console.log('Full Redraw Complete')
     }
     
     /**
@@ -60,7 +70,10 @@ class Controller {
     handleAddPlaceholderSquadron = () => {
         this.airplan.addSquadron('Squadron ' + (Object.keys(this.airplan.squadrons).length+1),'CS','TMS','MODEX')
     }
-    handleReset = () => { this.airplan.init() }
+    handleReset = () => {
+        this.view.menu.file.reset.tooltip('hide');
+        this.init();
+    }
     handleRefresh = () => { this.onAirplanChanged(); this.view.fitStageIntoParentContainer() }
     handleLoadFile = (file) => {
         let reader = new FileReader();
@@ -72,17 +85,21 @@ class Controller {
     }
     handleSaveFile = () => {
         let file = new Blob([JSON.stringify(this.airplan,getCircularReplacer())], {type: "application/json"})
-        saveAs(file,this.airplan.date.toYYYYMMDD()+".json")
+        saveAs(file,this.airplan.startDate.toYYYYMMDD()+".json")
     }
     handleExportFile = () => {
+        let startDay = this.view.date
+        let dates = this.airplan.dateList
         let w = 11
         let h = 8.5
         let m = .01
         var pdf = new jspdf.jsPDF('l', 'in', [8.5, 11]);
         let imgData = this.view.stage.toDataURL({mimeType: 'image/png', quality: 1, pixelRatio: 3});
         pdf.addImage(imgData, 'JPEG', m*w/2, m*h/2, w*(1-m), h*(1-m), undefined, 'FAST');
-        pdf.save('airplan_'+this.airplan.date.toYYYYMMDD()+'.pdf');    
+        pdf.save('airplan_'+this.airplan.date.toYYYYMMDD()+'.pdf');
+        console.log(`File exported as: ${'airplan_'+this.airplan.date.toYYYYMMDD()+'.pdf'}`)
     }
+
     handleHelp = () => { this.view.drawHelp() }
     
     handleFeedback = () => {
@@ -92,6 +109,33 @@ class Controller {
         window.open(`mailto:${email}?subject=${subject}&body=${body}`)
     }
 
+    handleSettings = () => {
+        this.view.drawSettingsMenu(this.airplan.startDate, this.view.timelineview, this.defaultCycleLength, this.defaultSortieLength)
+        this.view.bindSettingsSubmit(this.handleSettingsSubmit)
+    }
+
+    handleNextDay = () => {
+        this.view.date.setDate(this.view.date.getDate()+1)
+        console.log(`Shift to next day: ${this.view.date.toYYYYMMDD()}`)
+        this.view.viewDate.nextDay.tooltip('hide');
+        this.onAirplanChanged()
+    }
+
+    handlePrevDay = () => {
+        this.view.date.setDate(this.view.date.getDate()-1)
+        console.log(`Shift to prev day: ${this.view.date.toYYYYMMDD()}`)
+        this.view.viewDate.prevDay.tooltip('hide');
+        this.onAirplanChanged()
+    }
+
+    handleJumpDay = (event) => {
+        let d = new Date(event.target.value)
+        d.setMinutes(d.getMinutes()+d.getTimezoneOffset())
+        this.view.date = new Date(d)
+        console.log(`Jump to day: ${this.view.date.toYYYYMMDD()}`)
+        this.onAirplanChanged()
+    }
+    
     /**
      * ADD/EDIT MENU HANDLERS
      */
@@ -109,12 +153,13 @@ class Controller {
         this.view.drawAddCycleMenu()
         let start = new Date()
         let end = new Date()
-        if (Object.keys(this.airplan.cycles).length > 0) {
+        let jd = this.view.date.julianDate()
+        if (this.airplan.cycleList.filter(c=>c.start.julianDate().toString()===jd.toString()).length > 0) {
             start = new Date(this.airplan.cycleList.at(-1).end)
         } else {
-            start = new Date(this.airplan.start.valueOf() + 3600*1000)
+            start = new Date(this.airplan.start[jd].valueOf() + 60*60*1000)
         }
-        end = new Date(start.valueOf() + 3600*1000)
+        end = new Date(start.valueOf() + this.defaultCycleLength*60*1000)
         $('#start').val(start.toLocalTimeString())
         $('#end').val(end.toLocalTimeString())
         this.view.bindAddCycleSubmit(this.handleAddCycle) 
@@ -141,18 +186,18 @@ class Controller {
     * @method handleAddSortieMenu is called when the user clicks on the add sortie button.
     * It draws the menu and binds the submit button.
     * It prepopulates the fields based on the following rules:
-    *  - The start time is set based on the following priorities:
+    *  - The start TIME is set based on the following priorities:
     *    1. The start time is the end time of the line's last sortie if this is not the first sortie in the line.
-    *    2. The start time is the start of the first cycle, if there is a cycle.
+    *    2. The start time is the start of the first cycle, if there is a cycle on the same julian date.
     *    3. The start time is the start of the airplan timeline.
-    *  - The end time is set based on the following priorities:
+    *  - The end TIME is set based on the following priorities:
     *    1. The end time is the cycle end time if the start was set to the cycle start time.
     *    1. The end time is 1 hour after the start time
-    *  - The start type is set based on the following priorities:
+    *  - The start TYPE is set based on the following priorities:
     *    1. The start type is the end type of the line's last sortie if this is not the first sortie in the line.
     *    2. The start type is a pull.
     *  - The end type is set based on the following priorities:
-    *    1. The end type is a stuff.
+    *    1. The end TYPE is a stuff.
     *  - The start cycle is set based on the following priorities:
     *    1. The start cycle ID is null.
     *  - The end cycle is set based on the following priorities:
@@ -160,6 +205,7 @@ class Controller {
     * @param {String} lineID 
     */
     handleAddSortieMenu = (lineID) => {
+        let jd = this.view.date.julianDate()
         this.view.drawAddSortieMenu(this.airplan.lines[lineID], this.airplan.cycleList)
         .then(()=>{
             let start = new Date()
@@ -170,15 +216,15 @@ class Controller {
             let endCycleID = null
             let startType = 'pull'
             let endType = 'stuff'
-            if(this.airplan.lines[lineID].end != undefined) {
+            if(this.airplan.lines[lineID].end != undefined && this.airplan.lines[lineID].end.julianDate().toString()===jd.toString()) {
                 start = new Date(this.airplan.lines[lineID].end)
-                end = new Date(start.valueOf()+3600*1000)
-            } else if ( this.airplan.cycleList.length>0 && this.airplan.cycleList[0].end != undefined) {
-                start = new Date(this.airplan.cycleList[0].start)
-                end = new Date(this.airplan.cycleList[0].end)
+                end = new Date(start.valueOf()+this.defaultSortieLength*60*1000)
+            } else if ( this.airplan.cycleList.filter(c=>c.start.julianDate().toString()===jd.toString()).length>0 && this.airplan.cycleList.filter(c=>c.start.julianDate().toString()===jd.toString())[0].end != undefined) {
+                start = new Date(this.airplan.cycleList.filter(c=>c.start.julianDate().toString()===jd.toString())[0].start)
+                end = new Date(this.airplan.cycleList.filter(c=>c.start.julianDate().toString()===jd.toString())[0].end)
             } else {
-                start = new Date(this.airplan.start)
-                end = new Date(start.valueOf()+3600*1000)
+                start = new Date(this.airplan.start[jd])
+                end = new Date(start.valueOf()+this.defaultSortieLength*60*1000)
             }
             // Match start type to prev sortie end type
             if (this.airplan.lines[lineID].sorties.length>0) {
@@ -225,21 +271,21 @@ class Controller {
     }
     handleEditHeaderMenu = () => {
         this.view.drawEditHeaderData(this.airplan)
-        $('#title').val(this.airplan.title)
-        $('#subtitle').val(this.airplan.subtitle)
-        $('#timelineview').prop('checked', this.view.timelineview).trigger('change')
+        let jd = this.view.date.julianDate()
+        $('#title').val(this.airplan.title[jd])
+        $('#subtitle').val(this.airplan.subtitle[jd])
         // $('#date').val(this.airplan.date.toYYYYMMDD())
-        $('#start').val(this.airplan.start.toLocalTimeString())
-        $('#end').val(this.airplan.end.toLocalTimeString())
-        $('#sunrise').val(this.airplan.sunrise.toLocalTimeString())
-        $('#sunset').val(this.airplan.sunset.toLocalTimeString())
-        $('#moonrise').val(this.airplan.moonrise.toLocalTimeString())
-        $('#moonset').val(this.airplan.moonset.toLocalTimeString())
-        $('#moonphase').val(this.airplan.moonphase)
-        $('#flightquarters').val(this.airplan.flightquarters.toLocalTimeString())
-        $('#heloquarters').val(this.airplan.heloquarters.toLocalTimeString())
-        $('#variation').val(this.airplan.variation)
-        $('#timezone').val(this.airplan.timezone)
+        $('#start').val(this.airplan.start[jd].toLocalTimeString())
+        $('#end').val(this.airplan.end[jd].toLocalTimeString())
+        $('#sunrise').val(this.airplan.sunrise[jd].toLocalTimeString())
+        $('#sunset').val(this.airplan.sunset[jd].toLocalTimeString())
+        $('#moonrise').val(this.airplan.moonrise[jd].toLocalTimeString())
+        $('#moonset').val(this.airplan.moonset[jd].toLocalTimeString())
+        $('#moonphase').val(this.airplan.moonphase[jd])
+        $('#flightquarters').val(this.airplan.flightquarters[jd].toLocalTimeString())
+        $('#heloquarters').val(this.airplan.heloquarters[jd].toLocalTimeString())
+        $('#variation').val(this.airplan.variation[jd])
+        $('#timezone').val(this.airplan.timezone[jd])
         this.view.bindEditHeaderSubmit(this.handleEditHeader)
     }
     
@@ -288,8 +334,8 @@ class Controller {
     handleToggleLineDisplay = (id) => { this.airplan.toggleLineDisplay(id) }
 
     // Add/Remove/Edit Sortie
-    handleAddSortie = (lineID, start, end, startType, endType, note, startCycleID, endCycleID, isAlert) => {
-        this.airplan.addSortie(lineID, start, end, startType, endType, note, startCycleID, endCycleID, isAlert)
+    handleAddSortie = (lineID, start, end, startType, endType, note, prenote, postnote, startCycleID, endCycleID, isAlert) => {
+        this.airplan.addSortie(lineID, start, end, startType, endType, note, prenote, postnote, startCycleID, endCycleID, isAlert)
     }
     handleRemoveSortie = (id) => { this.airplan.removeSortie(id) }
     handleEditSortie = (id, start, end, startType, endType, note, prenote, postnote, startCycleID, endCycleID, isAlert) => {
@@ -297,22 +343,37 @@ class Controller {
     }
 
     // Edit Header
-    handleEditHeader = (title, subtitle, timelineview, date, start, end, sunrise, sunset, moonrise, moonset, moonphase, flightquarters, heloquarters, variation, timezone) => {
-        this.airplan.title = title
-        this.airplan.subtitle = subtitle 
+    handleEditHeader = (title, subtitle, date, start, end, sunrise, sunset, moonrise, moonset, moonphase, flightquarters, heloquarters, variation, timezone) => {
+        let jd = this.view.date.julianDate()
+        this.airplan.title[jd] = title
+        this.airplan.subtitle[jd] = subtitle 
+        this.airplan.start[jd] = new Date(Date.parse(start))
+        this.airplan.end[jd] = new Date(Date.parse(end))
+        this.airplan.sunrise[jd] = new Date(Date.parse(sunrise))
+        this.airplan.sunset[jd] = new Date(Date.parse(sunset))
+        this.airplan.moonrise[jd] = new Date(Date.parse(moonrise))
+        this.airplan.moonset[jd] = new Date(Date.parse(moonset))
+        this.airplan.moonphase[jd] = moonphase
+        this.airplan.flightquarters[jd] = new Date(Date.parse(flightquarters))
+        this.airplan.heloquarters[jd] = new Date(Date.parse(heloquarters))
+        this.airplan.variation[jd] = variation
+        this.onAirplanChanged();
+    }
+
+    handleSettingsSubmit = (timelineview,shiftDate,defaultCycleLength,defaultSortieLength) => {
+        this.defaultCycleLength = defaultCycleLength
+        this.defaultSortieLength = defaultSortieLength
         this.view.timelineview = timelineview
-        // this.airplan.date = new Date(Date.parse(date+'T00:00'))
-        this.airplan.start = new Date(Date.parse(start))
-        this.airplan.end = new Date(Date.parse(end))
-        this.airplan.sunrise = new Date(Date.parse(sunrise))
-        this.airplan.sunset = new Date(Date.parse(sunset))
-        this.airplan.moonrise = new Date(Date.parse(moonrise))
-        this.airplan.moonset = new Date(Date.parse(moonset))
-        this.airplan.moonphase = moonphase
-        this.airplan.flightquarters = new Date(Date.parse(flightquarters))
-        this.airplan.heloquarters = new Date(Date.parse(heloquarters))
-        this.airplan.variation = variation
-        this.airplan.timezone = timezone
+        if(shiftDate!='Invalid Date'){
+            let startDate = new Date(this.airplan.startDate)
+            shiftDate.setHours(0,0,0,0)
+            startDate.setHours(0,0,0,0)
+            let shift = Math.round((shiftDate - startDate)/86400000)
+            if(shift!=0) {
+                this.airplan.shiftDates(shift)
+                this.view.date.setDate(this.view.date.getDate()+shift)
+            }
+        }
         this.onAirplanChanged();
     }
 }

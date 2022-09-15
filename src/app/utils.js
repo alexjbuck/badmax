@@ -77,6 +77,34 @@ Date.prototype.toZulu = function() {
     return ''+HH+MM
 }
 
+Date.prototype.julianDay = function() {
+    return this.valueOf()/86400000 + 2440587.5
+}
+
+Date.prototype.julianDate = function() {
+    // Make new date of current year but january first at midnight GMT
+    let approxfirst = new Date(this.getFullYear(),0,3)
+    let first = new Date(this.getFullYear(),0,1,0)
+    let elapsed = this.julianDay()-first.julianDay() + (first.getTimezoneOffset() - this.getTimezoneOffset())/60/24
+    elapsed = Math.floor(Math.round(elapsed*86400000)/86400000)+1
+    return [this.getFullYear() , elapsed]
+}
+
+Date.fromJulianDate = function(jd) {
+    let [year,doy] = jd
+    // let year = Math.floor(jd/1000)
+    // let doy = jd - year * 1000
+    return new Date(year,0,doy)
+}
+
+function prefixPlus(n) {
+    if(n>=0){
+        return '+'+n
+    } else {
+        return n.toString()
+    }
+}
+
 Konva.Node.prototype.drawBoundingBox = function({stroke='black',strokeWidth=1, name='box', fillEnabled='false', fill='',opacity=1,zIndex=0, minSize=15}={}){
     let x=0,y=0
     if (this.nodeType == 'Shape') {

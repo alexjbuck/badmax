@@ -7,6 +7,10 @@ class View {
     * @param {Model} airplan 
     */
     constructor() {
+        this.init()
+    }
+    
+    init(){
         this.app                = this.getElement('#view');
         this.margin             = {top: 10, right: 10, bottom: 10, left: 10};
         this.sceneWidth         = 1100;
@@ -18,12 +22,48 @@ class View {
         this.topRow             = 20;
         this.bottomRow          = 20;
         this.timelineview       = false;
+        this.date               = new Date()
+        this.date.setHours(0,0,0,0)
         this.drawMenu();
+        // this.drawViewDate();
         this.drawSquadrons();
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip()
+        $('[data-toggle="tooltip"]').tooltip({
+            trigger: 'hover'
         })
     }
+
+    setDate(date) {
+        // Adjust the time by the timezoneOffset so that it is midnight *LOCAL* time.
+        date.setMinutes(date.getMinutes()+date.getTimezoneOffset())
+        this.date = date.julianDate()
+    }
+
+    drawViewDate = (handler) => {
+        var html = `
+        <details open>
+        <summary class='h3'>View Date</summary>
+        <div class='btn-group menu-group'>
+        <button id="prev-day"  class='btn btn-outline-primary' data-toggle='tooltip' data-placement='bottom' title='Prev Day'><i class='fas fa-arrow-left'></i> </button>
+        <input  id="curr-day"  class='btn btn-outline-primary' type='date'></input>
+        <button id="next-day"  class='btn btn-outline-primary' data-toggle='tooltip' data-placement='bottom' title='Next Day'> <i class="fas fa-arrow-right"></i></button>
+        </div>
+        </details>
+        `
+        $('#view-date').html(html)
+        this.viewDate = {}
+        this.viewDate.prevDay = $('#prev-day')
+        this.viewDate.currDay = $('#curr-day')
+        this.viewDate.nextDay = $('#next-day')
+        
+        this.viewDate.currDay.val(this.date.toYYYYMMDD())
+        this.viewDate.currDay.css('color','black')
+        this.viewDate.currDay.css('font-weight','bold')
+        this.viewDate.currDay.on('change',handler)
+        $('[data-toggle="tooltip"]').tooltip({
+            trigger: 'hover'
+        })
+    }
+
     // ASCII Comments generated with: https://patorjk.com/software/taag with the Big font
     //    __  __                      __      __ _                      
     //   |  \/  |                     \ \    / /(_)                     
@@ -175,14 +215,98 @@ class View {
             <details open>
             <summary class='h3'>Squadrons</summary>
             <div class='btn-group menu-group'>
-                <button id='add-squadron' class='btn btn-outline-primary add-squadron' data-toggle='tooltip' data-placement='top' title='Add Squadron'>   <i class='fas fa-plus'> </i> Add </button>
-                <button id='rem-squadron' class='btn btn-outline-danger rem-squadron'  data-toggle='tooltip' data-placement='top' title='Remove Squadron'><i class='fas fa-minus'></i> Rem</button>
+                <button id='add-squadron' class='btn btn-outline-primary add-squadron' data-toggle='tooltip' data-placement='bottom' title='Add Squadron'>   <i class='fas fa-plus'> </i> Add </button>
+                <button id='rem-squadron' class='btn btn-outline-danger rem-squadron'  data-toggle='tooltip' data-placement='bottom' title='Remove Bottom Squadron'><i class='fas fa-minus'></i> Rem</button>
             </div>
             </details>`
         $('#squadrons').html(html)
         this.squadron = {}
         this.squadron.add = $('#add-squadron')
         this.squadron.rem = $('#rem-squadron')
+    }
+
+    bindSettingsSubmit(handler) {
+        this.settingsSubmit.on('click', event=>{
+            let timelineview = $('#timelineview').prop('checked')
+
+            let defaultCycleLength = $('#defaultCycleLength')[0].valueAsNumber
+            let defaultSortieLength = $('#defaultSortieLength')[0].valueAsNumber
+
+            // Parse the date from Date input. This will be midnight *GMT*. 
+            let date = new Date(Date.parse($('#setdate').val()))
+            // Adjust the time by the timezoneOffset so that it is midnight *LOCAL* time.
+            date.setMinutes(date.getMinutes()+date.getTimezoneOffset())
+            handler(timelineview,date,defaultCycleLength,defaultSortieLength)
+            closeModal()
+        })
+    }
+
+    bindNextDay(handler) {
+        this.viewDate.nextDay.on('click', event=>{
+            handler()
+        })
+    }
+
+    bindPrevDay(handler) {
+        this.viewDate.prevDay.on('click', event=>{
+            handler()
+        })
+    }
+
+    //     _____      _   _   _              __      ___               
+    //    / ____|    | | | | (_)             \ \    / (_)              
+    //   | (___   ___| |_| |_ _ _ __   __ _   \ \  / / _  _____      __
+    //    \___ \ / _ \ __| __| | '_ \ / _` |   \ \/ / | |/ _ \ \ /\ / /
+    //    ____) |  __/ |_| |_| | | | | (_| |    \  /  | |  __/\ V  V / 
+    //   |_____/ \___|\__|\__|_|_| |_|\__, |     \/   |_|\___| \_/\_/  
+    //                                 __/ |                           
+    //                                |___/                            
+    /**
+     * @method drawSettings
+     */
+    drawSettingsMenu(startDate,timelineview, defaultCycleLength, defaultSortieLength) {
+        let html = `
+        <h3>Settings</h3>
+        <div class='form-group row align-items-center'>
+            <label for='timelineview' class='col-12 col-md-3 text-left text-md-right'>Timeline Grid:</label>
+            <input type='checkbox' class='mr-5 align-left' id='timelineview'></input>
+        </div>
+        <div class='form-group row align-items-center'>
+            <label for='defaultCycleLength' class='col-12 col-md-3 text-left text-md-right'>Default Cycle Length:</label>
+            <input type='number' class='mr-5 align-left' id='defaultCycleLength'></input>minutes
+        </div>
+        <div class='form-group row align-items-center'>
+            <label for='defaultSortieLength' class='col-12 col-md-3 text-left text-md-right'>Default Sortie Length:</label>
+            <input type='number' class='mr-5 align-left' id='defaultSortieLength'></input>minutes
+        </div>
+        <div class='form-group row align-items-center'>
+            <div class='col-12 col-md-3 text-left text-md-right'>Current File Start Date:</div>
+            <div class='mr-5 align-left'>${startDate.toLocaleDateString()}</div>
+        </div>
+        <div class='form-group row align-items-center'>
+            <label for='setdate' class='col-12 col-md-3 text-left text-md-right'>Shift Start Date to:</label>
+            <input type='date' class='mr-5 align-left' id='setdate'></input>
+        </div>
+        <div style='display:none' id='shiftDaysDiv' class='form-group row align-items-center'>
+            <div class='col-12 col-md-3 text-left text-md-right'><b>Shift everything by</b></div>
+            <b><div class='mr-5 align-left' id='shiftAmount'></div></b>
+        </div>
+        <div class='btn-group'>
+            <button class='btn btn-primary settings-submit'>Submit</button>
+        </div>
+        `
+        openModal(html)
+        $('#timelineview').prop('checked', timelineview).trigger('change')
+        $('#defaultCycleLength').val(defaultCycleLength)
+        $('#defaultSortieLength').val(defaultSortieLength)
+        this.settingsSubmit = $('.settings-submit')
+        $('#setdate').on('change', event=>{
+            let d = new Date(event.target.value)
+            d.setMinutes(d.getMinutes()+d.getTimezoneOffset())
+            let shift = (d - this.date)/86400000
+            $('#shiftDaysDiv').show()
+            $('#shiftAmount').html(`${shift>=0?'+':''}${shift} ${[-1,1].includes(shift)?'day':'days'}`)
+        })
     }
 
     //     _____                           _                      ____   _             _  _                    
@@ -281,7 +405,12 @@ class View {
         <details open>
         <summary class='h3'>Cycles</summary>
         <div class='list-group'>`
-        Object.values(airplan.cycles).forEach(cycle => {
+        Object.values(airplan.cycles)
+        .filter(cycle => {
+            return cycle.start?.julianDate().toString()===this.date.julianDate().toString() ||
+            cycle.end?.julianDate().toString()===this.date.julianDate().toString()
+        })
+        .forEach(cycle => {
             html += `<div id='`+cycle.ID+`' class='list-group-item list-group-item-action edit-cycle-menu'>`
             html +=     `<b>Cycle ${cycle.number}</b>: ${cycle.start.toHHMM()} - ${cycle.end.toHHMM()}`
             html +=     `<i id='`+cycle.ID+`' class='fas fa-trash-alt cycle-remove'></i> `
@@ -498,7 +627,11 @@ class View {
             html += `<summary class='h3'>Lines and Sorties</summary>`
             html += `<div class='list-group'>`
         Object.values(airplan.squadrons).forEach(squadron => {
-            Object.values(airplan.lines).filter(line=>line.squadronID == squadron.ID).sort((a,b)=>a.start-b.start).forEach((line,i) => {
+            Object.values(airplan.lines)
+            .filter(line=>line.squadronID == squadron.ID)
+            .filter(l => l.isEmpty || l.start?.julianDate().toString()===this.date.julianDate().toString() || l.end?.julianDate().toString()===this.date.julianDate().toString())
+            .sort((a,b)=>a.start-b.start)
+            .forEach((line,i) => {
                 let display='open'
                 if(line.display!=undefined && !line.display){
                     display=''
@@ -779,7 +912,6 @@ class View {
         this.editHeaderSubmit.on('click', event=>{
             let title = $('#title').val();
             let subtitle = $('#subtitle').val();
-            let timelineview = $('#timelineview').prop('checked')
             let date = $('#date').val();
             let start = $('#start').val();
             let end = $('#end').val();
@@ -792,7 +924,7 @@ class View {
             let heloquarters = $('#heloquarters').val();
             let variation = $('#variation').val();
             let timezone = $('#timezone').val();
-            handler(title, subtitle, timelineview, date, start, end, sunrise, sunset, moonrise, moonset, moonphase, flightquarters, heloquarters, variation, timezone)
+            handler(title, subtitle, date, start, end, sunrise, sunset, moonrise, moonset, moonphase, flightquarters, heloquarters, variation, timezone)
             closeModal()
         })
     }
@@ -816,11 +948,6 @@ class View {
         html += "<label for='subtitle' class='col-12 col-md-3 text-left text-md-right'>Subtitle</label>";
         html += "<input type='text' class='col form-control mr-5' id='subtitle' placeholder='Airplan Subtitle'>";
         html += "</div>";
-        // Timeline View
-        html += "<div class='form-group row align-items-center'>";
-        html += "<label for='timelineview' class='col-12 col-md-3 text-left text-md-right'>Timeline Grid</label>";
-        html += `<input type='checkbox' class='mr-5 align-left' id='timelineview'></input>`
-        html += "</div>"
         // Start
         html += "<div class='form-group row align-items-center'>";
         html += "<label for='start' class='col-12 col-md-3 text-left text-md-right'>Start Time</label>";
@@ -893,6 +1020,8 @@ class View {
     * @param {Model} airplan Create the Konva object and draw the airplan on it.
     */
     drawStage = (airplan) => { 
+        let jd = this.date.julianDate()
+
         // Create Stage
         this.stage = new Konva.Stage({
             container: 'graphic-stage',   // id of container <div>
@@ -940,7 +1069,7 @@ class View {
         }).addTo(this.stage.findOne('#slap'));
         
         new Konva.Text({
-            text: ['sunrise', 'sunset', 'moonrise', 'moonset'].map(k=>airplan[k].toHHMM()).concat(airplan.moonphase).join('\n'),
+            text: ['sunrise', 'sunset', 'moonrise', 'moonset'].map(k=>airplan[k][jd].toHHMM()).concat(airplan.moonphase[jd]).join('\n'),
             offsetX: -this.stage.findOne('#slap.label').width() - config.body.padding,
         }).addTo(this.stage.findOne('#slap'));
         
@@ -951,7 +1080,7 @@ class View {
         
         new Konva.Text({
             id: 'title.title',
-            text: airplan.title,
+            text: airplan.title[jd],
             fontSize: config.title.fontSize,
             fontFamily: config.title.fontFamily,
         }).addTo(this.stage.findOne('#title')).anchorTopMiddle()
@@ -959,7 +1088,7 @@ class View {
         new Konva.Text({
             id: 'title.subtitle',
             y: this.stage.findOne('#title.title').height() + config.subtitle.padding,
-            text: airplan.subtitle,
+            text: `${airplan.subtitle[jd]}: ${this.date.toYYYYMMDD()}`,
             fontSize : config.subtitle.fontSize,
         }).addTo(this.stage.findOne('#title')).anchorTopMiddle()
         
@@ -977,7 +1106,7 @@ class View {
         
         // Time Values
         new Konva.Text({
-            text: ['flightquarters','heloquarters'].map(k=>airplan[k].toHHMM()).concat([airplan.variation,airplan.timezone]).join('\n'),
+            text: ['flightquarters','heloquarters'].map(k=>airplan[k][jd].toHHMM()).concat([airplan.variation[jd],airplan.timezone[jd]]).join('\n'),
             id: 'time.value',
             x: this.stage.findOne('#time.label').width() + config.body.padding
         }).addTo(this.stage.findOne('#time'));
@@ -1028,45 +1157,45 @@ class View {
         }).addTo(this.events)
         
         /** Sunrise Group */
-        new Konva.Group({id:'sunrise',name:'timeline', x: this.time2pixels(airplan.sunrise,airplan), y: this.topRow }).addTo(this.timebox).anchorCenter()
+        new Konva.Group({id:'sunrise',name:'timeline', x: this.time2pixels(airplan.sunrise[jd],airplan), y: this.topRow }).addTo(this.timebox).anchorCenter()
         
         // Sunrise
         new Konva.Arc({ angle: 180, outerRadius: this.topRow*0.75, clockwise: true, stroke:'black', strokeWidth:1 }).addTo(this.stage.findOne('#sunrise'));
         
         // Sunrise Text
-        new Konva.Text({ text: airplan.sunrise.toHHMM(), y: -this.topRow }).addTo(this.stage.findOne('#sunrise')).anchorBottomMiddle();
+        new Konva.Text({ text: airplan.sunrise[jd].toHHMM(), y: -this.topRow }).addTo(this.stage.findOne('#sunrise')).anchorBottomMiddle();
         
         this.stage.findOne('#sunrise').fitToChildren().addHighlightBox()
         
         /** Sunset Group */
-        new Konva.Group({id:'sunset',name:'timeline', x: this.time2pixels(airplan.sunset,airplan), y: this.topRow }).addTo(this.timebox).anchorCenter()
+        new Konva.Group({id:'sunset',name:'timeline', x: this.time2pixels(airplan.sunset[jd],airplan), y: this.topRow }).addTo(this.timebox).anchorCenter()
         
         // Sunset
         new Konva.Arc({ angle: 180, outerRadius: this.topRow*0.75, clockwise: true, stroke:'black', fill: 'black', strokeWidth:1 }).addTo(this.stage.findOne('#sunset'));
         
         // Sunset Text
-        new Konva.Text({ text: airplan.sunset.toHHMM(), y: -this.topRow }).addTo(this.stage.findOne('#sunset')).anchorBottomMiddle();
+        new Konva.Text({ text: airplan.sunset[jd].toHHMM(), y: -this.topRow }).addTo(this.stage.findOne('#sunset')).anchorBottomMiddle();
         
         this.stage.findOne('#sunset').fitToChildren().addHighlightBox()
         
-        /** Timebox.Start/End */
-        new Konva.Text({ text: `\u21A6${airplan.start.toHHMM()}`, y: this.topRow*2.5 }).addTo(this.timebox).anchorTopLeft()
-        new Konva.Text({ text: airplan.end.toHHMM()+'\u21A4',   y: this.topRow*2.5, x: this.timebox.width() }).addTo(this.timebox).anchorTopRight()
+        /** Timebox.Start/End */        
+        new Konva.Text({ text: `\u21A6${airplan.start[jd].toHHMM()}`, y: this.topRow*2.5 }).addTo(this.timebox).anchorTopLeft()
+        new Konva.Text({ text: airplan.end[jd].toHHMM()+'\u21A4',   y: this.topRow*2.5, x: this.timebox.width() }).addTo(this.timebox).anchorTopRight()
         
         /** Timeline View Grid */
         if (this.timelineview) {
-            let time = new Date(airplan.start)
-            time.setHours(time.getHours(),0,0,0)
+            let time = new Date(this.date)
+            time.setHours(airplan.start[jd].getHours(),0,0,0)
             let group = new Konva.Group({
-                x: this.time2pixels(airplan.start,airplan),
+                x: this.time2pixels(airplan.start[jd],airplan),
                 y: this.topRow,
-                width: this.time2pixels(airplan.end,airplan) - this.time2pixels(airplan.start,airplan),
+                width: this.time2pixels(airplan.end[jd],airplan) - this.time2pixels(airplan.start[jd],airplan),
                 height: this.timebox.height() - this.topRow,
             }).addTo(this.timebox)
 
-            while (time < airplan.end) {
+            while (time < airplan.end[jd]) {
                 let x = this.time2pixels(time,airplan)
-                if (time>airplan.start) {
+                if (time>airplan.start[jd]) {
                     new Konva.Line({
                         stroke:'black',
                         strokeWidth:1,
@@ -1078,7 +1207,7 @@ class View {
                     new Konva.Text({ text:time.toZulu(-4)+'Z', x:x}).addTo(group).anchorBottomLeft({padX:1,padY:1})
                 }
                 time.setMinutes(30,0,0)
-                if (time>airplan.start) {
+                if (time>airplan.start[jd]) {
                     x = this.time2pixels(time,airplan)
                     new Konva.Line({
                         stroke:'black',
@@ -1093,7 +1222,9 @@ class View {
         }
 
         /** Timebox.Cycles */
-        Object.values(airplan.cycles).forEach((cycle,i)=>{
+        Object.values(airplan.cycles)
+        .filter(c=>c.start.julianDate().toString()===this.date.julianDate().toString() || c.end.julianDate().toString()==this.date.julianDate().toString())
+        .forEach((cycle,i)=>{
             let group = new Konva.Group({
                 id: `cycle${i}`,
                 x: this.time2pixels(cycle.start,airplan),
@@ -1122,6 +1253,7 @@ class View {
         this.squadrons = new Konva.Group({ y: 2*this.topRow, width: this.events.width(), height: this.events.height()-this.bottomRow-2*this.topRow}).addTo(this.events)
         
         let spacing = Object.keys(airplan.squadrons).length ? this.squadrons.height() / (Object.keys(airplan.squadrons).length) : this.squadrons.height()
+        
         // For each squadron
         Object.values(airplan.squadrons).forEach((squadron,i)=>{
             // Group for Squadron Text
@@ -1142,7 +1274,7 @@ class View {
             group = new Konva.Group({x: this.squadrons.width()-this.rightCol/2, y: (i+.5)*spacing}).addTo(this.squadrons).anchorCenter()
             
             // D/N Totals Text
-            new Konva.Text({ text: squadron.day + '/' + squadron.night }).addTo(group).anchorCenter()
+            new Konva.Text({ text: squadron.day[jd] + '/' + squadron.night[jd] }).addTo(group).anchorCenter()
             
             // Squadron.Timebox
             let timebox = new Konva.Group({
@@ -1154,8 +1286,12 @@ class View {
             
             let lineCount = Object.values(airplan.lines).filter(l=>l.squadronID==squadron.ID).length
             let lineSpace = timebox.height() / (lineCount+1) //=> Heuristic for placing lines nicely
+            
             // For each line in this squadron, sorting lines by start time. Lines will flow top left to bottom right
-            Object.values(airplan.lines).filter(l=>l.squadronID==squadron.ID).sort((a,b)=>a.start-b.start).forEach((line,j)=>{
+            Object.values(airplan.lines)
+            .filter(l=>l.squadronID==squadron.ID)
+            .filter(l=>l.isEmpty || l.start?.julianDate().toString()===this.date.julianDate().toString() || l.end?.julianDate().toString()===this.date.julianDate().toString())
+            .sort((a,b)=>a.start-b.start).forEach((line,j)=>{
                 // Draw all of the sorties
                 line.sorties.forEach((sortie,k)=>{
                     // Group for sortie, to simplify drawing dimensions
@@ -1206,7 +1342,8 @@ class View {
     }
     
     time2pixels = (time,airplan) => {
-        let pixels = (time-airplan.start) * this.timebox.width()/(airplan.end-airplan.start)
+        let jd = this.date.julianDate()
+        let pixels = (time-airplan.start[jd]) * this.timebox.width()/(airplan.end[jd]-airplan.start[jd])
         pixels = pixels<0 ? 0 : pixels
         pixels = pixels>this.timebox.width() ? this.timebox.width(): pixels
         return pixels

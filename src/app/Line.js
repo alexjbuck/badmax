@@ -10,6 +10,10 @@ class Line extends Event {
         return line
     }
 
+    get isEmpty() {
+        return this.sorties==undefined || this.sorties?.length == 0 
+    }
+
     /** @returns {Squadron} The squadron the line is assigned to. */
     get squadron() {
         if (this.parent) {
@@ -22,12 +26,12 @@ class Line extends Event {
         }
     }
     get start() {
-        if (this.sorties && this.sorties.length > 0) {
+        if (this.sorties?.length > 0) {
             return this.sorties[0].start;
         }
     }
     get end() {
-        if (this.sorties && this.sorties.length > 0) {
+        if (this.sorties?.length > 0) {
             return this.sorties[this.sorties.length-1].end;
         }
     }

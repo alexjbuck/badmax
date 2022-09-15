@@ -17,7 +17,9 @@ class Cycle extends Event {
 
     get number() {
         if (this.parent) {
-            return this.parent.cycleList.findIndex(c=>c.ID == this.ID)+1
+            return this.parent.cycleList
+            .filter(c=>c.start.julianDate().toString()===this.start.julianDate().toString())
+            .findIndex(c=>c.ID == this.ID)+1
         }
     }
    
