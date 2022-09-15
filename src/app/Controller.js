@@ -183,18 +183,18 @@ class Controller {
     * @method handleAddSortieMenu is called when the user clicks on the add sortie button.
     * It draws the menu and binds the submit button.
     * It prepopulates the fields based on the following rules:
-    *  - The start time is set based on the following priorities:
+    *  - The start TIME is set based on the following priorities:
     *    1. The start time is the end time of the line's last sortie if this is not the first sortie in the line.
-    *    2. The start time is the start of the first cycle, if there is a cycle.
+    *    2. The start time is the start of the first cycle, if there is a cycle on the same julian date.
     *    3. The start time is the start of the airplan timeline.
-    *  - The end time is set based on the following priorities:
+    *  - The end TIME is set based on the following priorities:
     *    1. The end time is the cycle end time if the start was set to the cycle start time.
     *    1. The end time is 1 hour after the start time
-    *  - The start type is set based on the following priorities:
+    *  - The start TYPE is set based on the following priorities:
     *    1. The start type is the end type of the line's last sortie if this is not the first sortie in the line.
     *    2. The start type is a pull.
     *  - The end type is set based on the following priorities:
-    *    1. The end type is a stuff.
+    *    1. The end TYPE is a stuff.
     *  - The start cycle is set based on the following priorities:
     *    1. The start cycle ID is null.
     *  - The end cycle is set based on the following priorities:
@@ -216,9 +216,9 @@ class Controller {
             if(this.airplan.lines[lineID].end != undefined && this.airplan.lines[lineID].end.julianDate().toString()===jd.toString()) {
                 start = new Date(this.airplan.lines[lineID].end)
                 end = new Date(start.valueOf()+3600*1000)
-            } else if ( this.airplan.cycleList.length>0 && this.airplan.cycleList[0].end != undefined) {
-                start = new Date(this.airplan.cycleList[0].start)
-                end = new Date(this.airplan.cycleList[0].end)
+            } else if ( this.airplan.cycleList.filter(c=>c.start.julianDate().toString()===jd.toString()).length>0 && this.airplan.cycleList.filter(c=>c.start.julianDate().toString()===jd.toString())[0].end != undefined) {
+                start = new Date(this.airplan.cycleList.filter(c=>c.start.julianDate().toString()===jd.toString())[0].start)
+                end = new Date(this.airplan.cycleList.filter(c=>c.start.julianDate().toString()===jd.toString())[0].end)
             } else {
                 start = new Date(this.airplan.start[jd])
                 end = new Date(start.valueOf()+3600*1000)
