@@ -103,17 +103,19 @@ class Model {
             // Mark as upgraded
             data.version = 2
         }
-        this.title          = data.title
-        this.start          = data._start
-        this.end            = data._end
-        this.sunrise        = data._sunrise
-        this.sunset         = data._sunset
-        this.moonrise       = data._moonrise
-        this.moonset        = data._moonset
-        this.moonphase      = data.moonphase
-        this.flightquarters = data._flightquarters
-        this.heloquarters   = data._heloquarters
-        this.variation      = data.variation
+        this._start          = new Proxy(data._start,{get:(obj,key) => key in obj ? obj[key] : new Date( Date.fromJulianDate(key.split(',').map(Number)).setHours(8,0,0,0) )})
+        this._end            = new Proxy(data._end,{get:(obj,key) => key in obj ? obj[key] : new Date( Date.fromJulianDate(key.split(',').map(Number)).setHours(18,0,0,0) )})
+        this.title           = new Proxy(data.title,{get:(obj,key) => key in obj ? obj[key] : "Airplan Title"})
+        this.subtitle        = new Proxy(data.subtitle,{get:(obj,key) => key in obj ? obj[key] : "Subtitle"})
+        this._sunrise        = new Proxy(data._sunrise,{get:(obj,key) => key in obj ? obj[key] : new Date( Date.fromJulianDate(key.split(',').map(Number)).setHours(6,46,0,0) )})
+        this._sunset         = new Proxy(data._sunset,{get:(obj,key) => key in obj ? obj[key] : new Date( Date.fromJulianDate(key.split(',').map(Number)).setHours(19,29,0,0) )})
+        this._moonrise       = new Proxy(data._moonrise,{get:(obj,key) => key in obj ? obj[key] : new Date( Date.fromJulianDate(key.split(',').map(Number)).setHours(10,8,0,0) )})
+        this._moonset        = new Proxy(data._moonset,{get:(obj,key) => key in obj ? obj[key] : new Date( Date.fromJulianDate(key.split(',').map(Number)).setHours(4,20,0,0) )})
+        this.moonphase       = new Proxy(data.moonphase,{get:(obj,key) => key in obj ? obj[key] : "__%"})
+        this._flightquarters = new Proxy(data._flightquarters,{get:(obj,key) => key in obj ? obj[key] : new Date( Date.fromJulianDate(key.split(',').map(Number)).setHours(11,30,0,0) )})
+        this._heloquarters   = new Proxy(data._heloquarters,{get:(obj,key) => key in obj ? obj[key] : new Date( Date.fromJulianDate(key.split(',').map(Number)).setHours(10,0,0,0) )})
+        this.variation       = new Proxy(data.variation,{get:(obj,key) => key in obj ? obj[key] : "__E/W"})
+        this.timezone        = new Proxy(data.timezone,{get:(obj,key) => key in obj ? obj[key] : 'UTC'+Date.fromJulianDate(key.split(',').map(Number)).getTimezoneOffset()/-60})
         this.version        = data.version
         /**
          * The parent value needs to be reassigned to each object because it is stripped
