@@ -151,7 +151,7 @@ class Controller {
         let start = new Date()
         let end = new Date()
         let jd = this.view.date.julianDate()
-        if (Object.keys(this.airplan.cycles).length > 0) {
+        if (this.airplan.cycleList.filter(c=>c.start.julianDate().toString()===jd.toString()).length > 0) {
             start = new Date(this.airplan.cycleList.at(-1).end)
         } else {
             start = new Date(this.airplan.start[jd].valueOf() + 3600*1000)
