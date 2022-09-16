@@ -80,6 +80,7 @@ class Controller {
         reader.onload = (e) => {
             let data = JSON.parse(e.target.result)
             this.airplan.load(data)
+            this.handleJumpDay({target:{value:this.airplan.startDate.toYYYYMMDD()}})
         }
         reader.readAsText(file)
     }

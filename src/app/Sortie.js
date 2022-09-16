@@ -54,24 +54,26 @@ class Sortie extends Event {
     
     /** @returns {Date} The start time. If this.startOnCycle, then its the start of the cycle. */
     get start() {
-        if (this.startOnCycle && this.parent) {
+        if (this.startOnCycle && this.parent && this.startCycleID in this.parent.cycles) {
             this._start = this.parent.cycles[this.startCycleID].start;
         }
         return this._start;
     }
     set start(value) {
         this._start = new Date(value);
+        this.startCycleID = null
         return this._start;
     }
     /** @returns {Date} The end time. If this.endOnCycle, then its the end of the cycle. */
     get end() {
-        if (this.endOnCycle && this.parent) {
+        if (this.endOnCycle && this.parent && this.endCycleID in this.parent.cycles) {
             this._end = this.parent.cycles[this.endCycleID].end;
         }
         return this._end;
     }
     set end(value) {
         this._end = new Date(value)
+        this.endCycleID = null
         return this._end;
     }
 
