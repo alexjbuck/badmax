@@ -87,19 +87,21 @@ class Model {
 
     load(data) {
         this.init()
-        if (data.version == undefined || data.version <= this.version) {
-            // Previous API, must upgrade breaking changes.
-            // THIS RESETS ALL TIME DATA TO DEFAULTS on upgrade. USER WILL NEED TO SET THIS INFO AGAIN.
-            data._start = this.start
-            data._end = this.end
-            data._sunrise = this.sunrise
-            data._sunset = this.sunset
-            data._moonrise = this.moonrise
-            data._moonset = this.moonset
-            data.moonphase = this.moonphase
-            data._flightquarters = this.flightquarters
-            data._heloquarters = this.heloquarters
-            data.variation = this.variation
+        if (data.version == undefined || data.version <= this.version || typeof data._start=='string') {
+            // Upgrade to from the previous data API where these values were not objects.
+            let jd = new Date(data._start).julianDate()
+            data._start = {[jd]: new Date(data._start)}
+            data._end = {[jd]: new Date(data._end)}
+            data._sunrise = {[jd]: new Date(data._sunrise)}
+            data._sunset = {[jd]: new Date(data._sunset)}
+            data._moonrise = {[jd]: new Date(data._moonrise)}
+            data._moonset = {[jd]: new Date(data._moonset)}
+            data.moonphase = {[jd]: data.moonphase}
+            data._flightquarters = {[jd]: new Date(data._flightquarters)}
+            data._heloquarters = {[jd]: new Date(data._heloquarters)}
+            data.variation = {[jd]: data.variation}
+            data.title = {[jd]: data.title}
+            data.subtitle = {[jd]: data.subtitle}
             // Mark as upgraded
             data.version = 2
         }
@@ -115,7 +117,6 @@ class Model {
         this._flightquarters = new Proxy(data._flightquarters,{get:(obj,key) => key in obj ? obj[key] : new Date( Date.fromJulianDate(key.split(',').map(Number)).setHours(11,30,0,0) )})
         this._heloquarters   = new Proxy(data._heloquarters,{get:(obj,key) => key in obj ? obj[key] : new Date( Date.fromJulianDate(key.split(',').map(Number)).setHours(10,0,0,0) )})
         this.variation       = new Proxy(data.variation,{get:(obj,key) => key in obj ? obj[key] : "__E/W"})
-        this.timezone        = new Proxy(data.timezone,{get:(obj,key) => key in obj ? obj[key] : 'UTC'+Date.fromJulianDate(key.split(',').map(Number)).getTimezoneOffset()/-60})
         this.version        = data.version
         /**
          * The parent value needs to be reassigned to each object because it is stripped
@@ -139,7 +140,7 @@ class Model {
             this.sorties[s.ID] = Sortie.convert(s)
             this.sorties[s.ID].parent = this;
         })
-        this.onChange()    
+        this.onChange()
     }
     
     async removeSquadron(id) {
@@ -208,8 +209,13 @@ class Model {
         this.onChange()
     }
     
-    async removeCycle(id) {
+    removeCycle(id) {
         delete this.cycles[id]
+        this.sortieList.filter(s=>s.endCycleID==id || s.startCycleID==id).forEach(s=>{
+            s.startCycleID = s.startCycleID==id ? null : s.startCycleID
+            s.endCycleID = s.endCycleID==id ? null : s.endCycleID
+        })
+
         this.onChange()
     }
     addCycle(start, end) {
