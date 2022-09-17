@@ -1,5 +1,5 @@
 importScripts(
-  "https://storage.googleapis.com/workbox-cdn/releases/6.4.1/workbox-sw.js"
+  "src/libraries/workbox-sw.js"
 );
 
 const cacheName = 'BadMaxCache_v2'

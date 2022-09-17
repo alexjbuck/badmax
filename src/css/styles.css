@@ -6,6 +6,9 @@
   color: red;
   filter:drop-shadow(1px 1px 1px black);
 }
+img.splash-logo {
+  height: 4rem;
+}
 
 .list-group-item > .fa-edit {
   display: none;
