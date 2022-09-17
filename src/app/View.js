@@ -113,7 +113,7 @@ class View {
         <div class='container'>
         <div class='row'>
         <div>
-        <img src='src/assets/logo.png' height=60rem alt='BadMax'>
+        <img class='splash-logo' src='src/assets/logo.png' alt='BadMax'>
         <!-- <h3>BAD MAX airplan writer: \u2708</h3> -->
         <h5>For when you don't have ADMACS</h5>
         </div>
