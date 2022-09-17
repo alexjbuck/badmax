@@ -131,7 +131,7 @@ class View {
         </p>
         <i class="fas fa-exclamation-triangle"></i> Tips:
         <ol>
-        <li>To get started, click the blue <i style="color:blue" class='fas fa-plus'></i> or red <i style="color:red" class='fas fa-minus'></i> in the menu to add or remove a squadron.</li>
+        <li>To get started, click the blue <i class='fas fa-plus text-primary'></i> or red <i class='fas fa-minus text-danger'></i> in the menu to add or remove a squadron.</li>
         <li>Click on the squadron text block in the graphical view to edit the name, callsign, TMS, and modex.</li>
         <li>Start adding cycles by clicking the "<i class='fas fa-plus'></i> Add Cycle" button and providing the cycle times</li>
         <li>Add an aircraft line by clicking the "<i class='fas fa-plus'></i> Add Line" button and selecting a squadron.</li>
@@ -141,14 +141,14 @@ class View {
         <li>Set your computer time zone accurately for Local/Zulu time comparison to be accurate.   
         </ol><ul>
         <li><b>Best Practice</b>: Add all of your squadrons, then save your airplan. Use that file as your starting point for the future.</li>
-        <li><b>Pro Tip</b>: View these tips anytime by clicking the <i style='color:#ffc107' class='fa fa-question-circle'></i> help icon in the menu.</li>
+        <li><b>Pro Tip</b>: View these tips anytime by clicking the <i class='fa fa-question-circle text-warning'></i> help icon in the menu.</li>
         </ul>
         <p>
         Play around, you can't break anything, and hopefully you find this app useful!
         </p>
         <p>
         Please provide feedback to <span class='jarvis'>JARVIS</span> at <a href=mailto:alexander.j.buck@gmail.com>alexander.j.buck@navy.mil</a> by
-        clicking the green <span style="color:green"><i class="fas fa-bullhorn"></i></span> button in the menu.
+        clicking the green <i class="fas fa-bullhorn color-success"></i> button in the menu.
         </p>
         `
         openModal(html)
@@ -288,7 +288,7 @@ class View {
             <label for='setdate' class='col-12 col-md-3 text-left text-md-right'>Shift Start Date to:</label>
             <input type='date' class='mr-5 align-left' id='setdate'></input>
         </div>
-        <div style='display:none' id='shiftDaysDiv' class='form-group row align-items-center'>
+        <div id='shiftDaysDiv' class='form-group row align-items-center hide'>
             <div class='col-12 col-md-3 text-left text-md-right'><b>Shift everything by</b></div>
             <b><div class='mr-5 align-left' id='shiftAmount'></div></b>
         </div>

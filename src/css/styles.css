@@ -9,6 +9,9 @@
 img.splash-logo {
   height: 4rem;
 }
+.hide {
+  display: none;
+}
 
 .list-group-item > .fa-edit {
   display: none;
@@ -85,6 +88,15 @@ img.splash-logo {
 .marvel {
   font-family: marvel;
   font-size: smaller;
+}
+.primary-color {
+  color: --primary
+}
+.danger-color {
+  color: --danger
+}
+.warning-color {
+  color: --warning
 }
 
 label {
