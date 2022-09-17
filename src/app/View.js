@@ -113,8 +113,9 @@ class View {
         <div class='container'>
         <div class='row'>
         <div>
-        <h3>BAD MAX airplan writer: \u2708</h3>
-        <h5>For when you don't have ADMACS, <em>and <sup>maybe <sup>even <sup>when <sup>you do!</sup></sup></sup></sup></em></h5>
+        <img src='src/assets/logo.png' height=60rem alt='BadMax'>
+        <!-- <h3>BAD MAX airplan writer: \u2708</h3> -->
+        <h5>For when you don't have ADMACS</h5>
         </div>
         <div class='ml-auto'>
         <small>Version: 0.6.2</small>
