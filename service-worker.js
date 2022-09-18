@@ -1,6 +1,8 @@
-importScripts("src/libraries/workbox-sw.js");
-// importScripts("src/libraries/workbox-cacheable-response.prod.js")
-// importScripts("src/libraries/workbox-recipes.prod.js")
+importScripts("src/libraries/workbox-v6.5.4/workbox-sw.js");
+
+workbox.setConfig({
+    modulePathPrefix: "/src/libraries/workbox-v6.5.4/",
+})
 
 const cacheName = 'BadMaxCache_v2'
 
