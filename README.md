@@ -6,7 +6,7 @@
 [![Digitize Host](https://code.il2.dso.mil//tron/products/dod-open-source/digitize/badmax/badges/master/pipeline.svg)](https://digitize-il4.staging.dso.mil/sites/badmax/)
 [![Digitize Host](https://code.il2.dso.mil//tron/products/dod-open-source/digitize/badmax/badges/master/pipeline.svg)](https://digitize.apps.dso.mil/sites/badmax/)
 
-Version: 0.6.4
+Version: 0.6.5
 
 Writing airplans in PowerPoint or Excel is a big bummer 🤬.
 Never again will you chained to dragging around little lines on the screen ⛓.
