@@ -1,7 +1,8 @@
 {
     "name": "BadMax Air Plan Writer",
     "short_name": "BadMax",
-    "start_url": "/sites/badmax/",
+    "start_url": "/",
+    "scope": ".",
     "icons": [
         {
             "src": "src/assets/icons/manifest-icon-192.maskable.png",
