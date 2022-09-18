@@ -4,7 +4,7 @@
 
 [![Padawan Host](https://code.il2.dso.mil//tron/products/dod-open-source/digitize/badmax/badges/master/pipeline.svg)](https://websites.dso.mil/sites/badmax/)
 
-Version: 0.6.2
+Version: 0.6.3
 
 Writing airplans in PowerPoint or Excel is a big bummer 🤬.
 Never again will you chained to dragging around little lines on the screen ⛓.
