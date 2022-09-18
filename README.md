@@ -2,7 +2,9 @@
 
 **For when you don't have ADMACS (maybe even when you do! 🤣)**
 
-[![Padawan Host](https://code.il2.dso.mil//tron/products/dod-open-source/digitize/badmax/badges/master/pipeline.svg)](https://websites.dso.mil/sites/badmax/)
+<!-- [![Padawan Host](https://code.il2.dso.mil//tron/products/dod-open-source/digitize/badmax/badges/master/pipeline.svg)](https://websites.dso.mil/sites/badmax/) -->
+[![Digitize Host](https://code.il2.dso.mil//tron/products/dod-open-source/digitize/badmax/badges/master/pipeline.svg)](https://digitize-il4.staging.dso.mil/sites/badmax/)
+[![Digitize Host](https://code.il2.dso.mil//tron/products/dod-open-source/digitize/badmax/badges/master/pipeline.svg)](https://digitize.apps.dso.mil/sites/badmax/)
 
 Version: 0.6.4
 
