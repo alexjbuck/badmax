@@ -1,10 +1,10 @@
 {
-    "name": "airplan",
-    "version": "0.6.6",
-    "description": "Airplan visualization and building",
-    "author": "Alex 'Jarvis' Buck <alexander.j.buck@navy.mil>",
+    "name": "BadMax",
+    "version": "0.6.7",
+    "description": "BadMax Airplan visualization and building",
+    "author": "Alex 'Jarvis' Buck <alexander.j.buck10.mil@us.navy.mil>",
     "contributors": [
-        "Alex 'Jarvis' Buck <alexander.j.buck@navy.mil>",
+        "Alex 'Jarvis' Buck <alexander.j.buck10.mil@us.navy.mil>",
         "Sean Lavelle <sean.m.lavelle6.mil@us.navy.mil>"
     ],
     "license": "MIT",
@@ -12,7 +12,7 @@
       "type": "git",
       "url": "https://github.com/npm/cli.git"
     },
-    "homepage": "https://github.com/alexjbuck/airplan#readme",
+    "homepage": "https://code.il2.dso.mil/tron/products/dod-open-source/digitize/badmax",
     "dependencies": {
       "jquery": "^3.6.0",
       "jspdf": "^2.5.0",
