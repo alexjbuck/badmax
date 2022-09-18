@@ -1,4 +1,4 @@
-importScripts("sites/badmax/src/libraries/workbox-v6.5.4/workbox-sw.js");
+importScripts("src/libraries/workbox-v6.5.4/workbox-sw.js");
 
 workbox.setConfig({
     modulePathPrefix: "sites/badmax/src/libraries/workbox-v6.5.4/",
