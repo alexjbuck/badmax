@@ -1,25 +1,31 @@
 {
-    "name": "BadMax",
-    "version": "0.6.8",
-    "description": "BadMax Airplan visualization and building",
-    "author": "Alex 'Jarvis' Buck <alexander.j.buck10.mil@us.navy.mil>",
-    "contributors": [
-        "Alex 'Jarvis' Buck <alexander.j.buck10.mil@us.navy.mil>",
-        "Sean Lavelle <sean.m.lavelle6.mil@us.navy.mil>"
-    ],
-    "license": "MIT",
-    "repository": {
-      "type": "git",
-      "url": "https://github.com/npm/cli.git"
-    },
-    "homepage": "https://code.il2.dso.mil/tron/products/dod-open-source/digitize/badmax",
-    "dependencies": {
-      "jquery": "^3.6.0",
-      "jspdf": "^2.5.0",
-      "file-saver": "^2.0.4",
-      "bootstrap": "^4.0.0",
-      "konva": "^8.3.2",
-      "fontawesome": "^5.15.4"
-    }
-
-}  
+  "name": "badmax",
+  "version": "0.6.8",
+  "description": "BadMax Airplan visualization and building",
+  "author": "Alex 'Jarvis' Buck <alexander.j.buck10.mil@us.navy.mil>",
+  "contributors": [
+    "Alex 'Jarvis' Buck <alexander.j.buck10.mil@us.navy.mil>",
+    "Sean Lavelle <sean.m.lavelle6.mil@us.navy.mil>"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexjbuck/badmax.git"
+  },
+  "homepage": "https://code.il2.dso.mil/tron/products/dod-open-source/digitize/badmax",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "dev": "npx serve . -p 3000",
+    "preview": "npx serve dist -p 4173",
+    "lint": "eslint src/app/",
+    "lint:fix": "eslint src/app/ --fix",
+    "test": "vitest run",
+    "test:unit": "vitest run"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "eslint": "^9.17.0",
+    "serve": "^14.2.4",
+    "vitest": "^2.1.0"
+  }
+}

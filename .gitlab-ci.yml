@@ -1,0 +1,26 @@
+# BadMax GitLab CI/CD Configuration for Padawan
+#
+# This configuration uses the Padawan npm.yaml pipeline template.
+# Adjust the include path below to match your Padawan setup.
+
+include:
+  - project: 'platform-one/products/bullhorn/padawan/padawan-pipeline'
+    file: 'npm.yml'
+
+variables:
+  # Build output directory (must match what scripts/build.js produces)
+  BUILD_OUTPUT_DIR: dist/
+
+  # Skip lint until ESLint is properly configured
+  # Set to "false" once eslint.config.js is ready
+  SKIP_LINT: "true"
+
+  # Skip unit tests until tests are written
+  # Set to "false" once tests exist
+  SKIP_UNIT_TEST: "true"
+
+  # Skip E2E tests (no Cypress setup)
+  SKIP_E2E_TEST: "true"
+
+  # Deploy on tags matching semver (e.g., v1.0.0 or 1.0.0)
+  PADAWAN_DEPLOYMENT_TYPE: tag

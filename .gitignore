@@ -1,5 +1,14 @@
+# IDE
 .vscode
 launch.json
+
+# Node
+node_modules/
+dist/
+
+# Claude Code
+.claude/
+
 # Local .terraform directories
 **/.terraform/*
 
