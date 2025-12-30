@@ -15,6 +15,10 @@ const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
 const DIST = path.join(ROOT, 'dist');
 
+// Read version from package.json (single source of truth)
+const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+const VERSION = pkg.version;
+
 // Get base path from environment
 // Default: "/" for custom domain (badmax.dso.mil)
 // Use BASE_PATH=/sites/badmax/ for default Padawan URLs (websites.dso.mil/sites/badmax/)
@@ -117,7 +121,12 @@ function build() {
   console.log('\nProcessing manifest.json...');
   processManifest();
 
+  // Inject version into View.js
+  console.log('\nInjecting version...');
+  injectVersion();
+
   console.log('\nBuild complete! Output in dist/');
+  console.log(`Version: ${VERSION}`);
   console.log(`Base path: ${BASE_PATH}`);
 }
 
@@ -154,6 +163,28 @@ function processManifest() {
 
   fs.writeFileSync(manifestDest, JSON.stringify(manifest, null, 2));
   console.log(`  [FILE] manifest.json (patched for ${BASE_PATH})`);
+}
+
+/**
+ * Inject version from package.json into View.js
+ */
+function injectVersion() {
+  const viewPath = path.join(DIST, 'src/app/View.js');
+
+  if (!fs.existsSync(viewPath)) {
+    console.log('  [SKIP] View.js (not found)');
+    return;
+  }
+
+  let content = fs.readFileSync(viewPath, 'utf8');
+
+  // Replace version placeholder or existing version string
+  // Matches: Version: X.Y.Z or {{VERSION}}
+  content = content.replace(/Version: [\d.]+/g, `Version: ${VERSION}`);
+  content = content.replace(/\{\{VERSION\}\}/g, VERSION);
+
+  fs.writeFileSync(viewPath, content);
+  console.log(`  [FILE] View.js (version: ${VERSION})`);
 }
 
 // Run build
