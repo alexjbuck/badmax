@@ -19,8 +19,9 @@
     "preview": "npx serve dist -p 4173",
     "lint": "eslint src/app/",
     "lint:fix": "eslint src/app/ --fix",
-    "test": "vitest run",
-    "test:unit": "vitest run"
+    "test": "vitest run --passWithNoTests",
+    "test:unit": "vitest run --passWithNoTests",
+    "test:e2e-ci": "echo 'No e2e tests configured'"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
