@@ -5,6 +5,16 @@ Migrate BadMax from vanilla JS/Konva to Svelte/Vite with TypeScript, modernizing
 
 **Version**: 0.6.9 → 0.7.0
 
+### Terminology
+- **Event** = timeline bar / "line on the airplan" (e.g., "1A3 4 STK")
+  - Represents one or more aircraft flying together
+  - Has mission number, aircraft count, and mission type
+  - Can be connected to other events (linked list)
+- **Marker** = point-in-time symbol on an event (AAR, refueling, crew swap, etc.)
+  - Has timing mode (offset/relative/fixed)
+  - Has symbol (circle, diamond, chevron, tick)
+  - Has 3x3 text annotation grid around symbol
+
 ## Core Principles
 1. **Bundle size first** - Users on ships with limited bandwidth
 2. **Offline capable** - Full SLAP calculation embedded, no external dependencies
@@ -57,55 +67,60 @@ interface Squadron {
   modex: string; // Base aircraft serial number
 }
 
-interface Sortie {
+// Event = the timeline bar / "line on the airplan" (e.g., "1A3 4 STK")
+// Represents one or more aircraft flying together
+interface Event {
   id: string;
   squadronId: string;
   start: Date;
   end: Date;
   connections: {
-    before: string | null; // sortieId
-    after: string | null;  // sortieId
+    before: string | null; // eventId
+    after: string | null;  // eventId
   };
-  startType: EventType;
-  endType: EventType;
+  startType: StartEndType;
+  endType: StartEndType;
+  missionNumber: string; // e.g., "1A3" (cycle + squadron letter + number)
+  aircraftCount: number; // How many aircraft (e.g., 4)
+  missionType: string;   // e.g., "STK", "PTNK", "BFM", "DCA"
   note: string;
   prenote: string;
   postnote: string;
   isAlert: boolean;
   alertType?: 'standard' | 'TTLR'; // TTLR = Tanker at Last Recovery
-  events: Event[];
+  markers: Marker[]; // Point-in-time markers on this event
 }
 
-interface Event {
+// Marker = point-in-time symbol on an event (AAR, TOT, refueling, etc.)
+interface Marker {
   id: string;
-  type: EventType;
-  timing: EventTiming;
-  symbol: EventSymbol;
+  symbol: MarkerSymbol;
+  timing: MarkerTiming;
   showTime: boolean;
-  annotations: EventAnnotations; // 3x3 grid of text
+  annotations: MarkerAnnotations; // 3x3 grid of text around the symbol
 }
 
-type EventType = 'pull' | 'stuff' | 'hp' | 'hpcs' | 'flyon' | 'flyoff' | 'sto' | 'custom';
+type StartEndType = 'pull' | 'stuff' | 'hp' | 'hpcs' | 'flyon' | 'flyoff' | 'sto' | 'custom';
 
-type EventSymbol =
-  | 'circle-open' | 'circle-closed'     // Refueling
+type MarkerSymbol =
+  | 'circle-open' | 'circle-closed'     // Refueling requirements
   | 'diamond-open' | 'diamond-closed'   // On-deck crew swap/refuel
   | 'chevron-down'                      // Landing without fuel/swap
   | 'tick-left' | 'tick-right'          // Fly on/off
   | 'bar-vertical'                      // Pull/stuff
   | 'custom';
 
-interface EventTiming {
+interface MarkerTiming {
   mode: 'offset' | 'relative' | 'fixed';
-  // offset: +/- hours from sortie start/end or cycle start/end
-  // relative: percentage through sortie or cycle
+  // offset: +/- hours from event start/end or cycle start/end
+  // relative: percentage through event or cycle
   // fixed: absolute time
   value: number; // hours for offset, percentage for relative, timestamp for fixed
-  anchor: 'sortie-start' | 'sortie-end' | 'cycle-start' | 'cycle-end' | 'absolute';
+  anchor: 'event-start' | 'event-end' | 'cycle-start' | 'cycle-end' | 'absolute';
   cycleId?: string; // if anchored to cycle
 }
 
-interface EventAnnotations {
+interface MarkerAnnotations {
   topLeft: string;
   topCenter: string;
   topRight: string;
@@ -158,7 +173,7 @@ interface AirplanState {
   name: string; // Plan name
   squadronLayout: Squadron[]; // Ordered list
   days: Map<string, DayData>; // keyed by julianDate
-  sorties: Map<string, Sortie>;
+  events: Map<string, Event>; // The timeline bars
   cycles: Map<string, Cycle>;
   metadata: {
     created: Date;
@@ -178,8 +193,9 @@ interface AirplanState {
 - [ ] Read old v2 JSON format
 - [ ] Convert to new data model
   - Map `Squadron` → `Squadron` (no changes)
-  - Map `Line` → deleted (connections in Sortie)
-  - Map `Sortie` → `Sortie` (add connections, events separate)
+  - Map `Line` → deleted (connections in Event)
+  - Map old `Sortie` → new `Event` (add missionNumber, aircraftCount, missionType, connections)
+  - Note: old app didn't have markers, so new markers array will be empty initially
   - Convert Proxy-based multi-day to `Map<julianDate, DayData>`
 - [ ] Save as v0.7.0 format
 - [ ] Unit tests for migration
@@ -211,7 +227,7 @@ interface AirplanState {
 - [ ] Prepackaged templates:
   - **CVW**: F/A-18 100, F/A-18 200, F/A-18 300, F/A-18 400, E/A-18G 500, E-2D 600, MH-60S 610, MH-60R 700
   - **ESG**: (define with user)
-- [ ] When removing squadron from layout, confirm and cascade delete sorties
+- [ ] When removing squadron from layout, confirm and cascade delete events
 
 ---
 
@@ -236,8 +252,8 @@ interface AirplanState {
 
 ### 4.1 Canvas Library Selection
 - [ ] Evaluate options (Svelte Canvas, Konva, raw Canvas)
-- [ ] PoC: Render simple timeline with sorties
-- [ ] Performance test with 100+ sorties
+- [ ] PoC: Render simple timeline with events
+- [ ] Performance test with 100+ events
 
 ### 4.2 Layout System
 Strict layout matching current app:
@@ -248,7 +264,7 @@ Strict layout matching current app:
 │                   Timeline Header (cycles)                  │
 ├─────────────────────────────────────────────────────────────┤
 │ Squad │                                              │ D/N  │
-│ Block │              Sortie Visualization            │Count │
+│ Block │              Event Visualization             │Count │
 │       │                                              │      │
 ├───────┼──────────────────────────────────────────────┼──────┤
 │ (repeat for each squadron)                                  │
@@ -259,17 +275,17 @@ Strict layout matching current app:
 
 - [ ] Implement responsive layout calculations
 - [ ] Squadron rows: dynamic height, evenly split
-- [ ] Auto-layout sorties on horizontal tracks (avoid overlaps)
+- [ ] Auto-layout events on horizontal tracks (avoid overlaps)
 - [ ] Manual positioning mode (disable auto-layout)
 
-### 4.3 Sortie Rendering
-- [ ] Draw sortie bars with start/end types
-- [ ] Render events as symbols on sortie bar
-- [ ] Render event annotations (3x3 text grid)
-- [ ] Render event numbers (e.g., "1A2")
-- [ ] Handle alert sorties (dashed, "A30", "A60", or "TTLR")
+### 4.3 Event Rendering
+- [ ] Draw event bars with start/end types
+- [ ] Render markers as symbols on event bar
+- [ ] Render marker annotations (3x3 text grid around each marker)
+- [ ] Render mission info in title area: mission # + aircraft count + mission type (e.g., "1A3 4 STK")
+- [ ] Handle alert events (dashed, "A30", "A60", or "TTLR")
 - [ ] Render duration as decimal hours (X.Y) with correct rounding
-- [ ] Visual indicators for connected sorties
+- [ ] Visual indicators for connected events
 
 ### 4.4 Cycle Rendering
 - [ ] Draw cycle boundaries on timeline
@@ -279,59 +295,61 @@ Strict layout matching current app:
   - Right of boundary: launches for current cycle
 
 ### 4.5 Day/Night Logic
-- [ ] Compute day sorties (start after sunrise, end before sunset)
-- [ ] Compute night sorties (all others)
+- [ ] Compute day events (start after sunrise, end before sunset)
+- [ ] Compute night events (all others)
+- [ ] Multiply by aircraftCount for accurate totals
 - [ ] Display aggregate counts per squadron
 
 ---
 
 ## Phase 5: Interactions & Workflows
 
-### 5.1 Sortie Creation (Graphical)
-- [ ] Click + drag on timeline to create sortie
+### 5.1 Event Creation (Graphical)
+- [ ] Click + drag on timeline to create event
 - [ ] Display start/end times while dragging
-- [ ] Snap to existing sortie ends
+- [ ] Snap to existing event ends
 - [ ] Snap to cycle starts/ends
 - [ ] Auto-format vertical layout (optional setting)
 - [ ] Open edit modal on creation
 
-### 5.2 Sortie Creation (Table)
-- [ ] Table view of all sorties
+### 5.2 Event Creation (Table)
+- [ ] Table view of all events
 - [ ] "New" / "Add Before" / "Add After" buttons
 - [ ] Edit modal for details
 
-### 5.3 Sortie Editing
+### 5.3 Event Editing
 - [ ] Modal with all fields:
   - Squadron (dropdown)
+  - Mission number, aircraft count, mission type
   - Start/end (date/time picker or cycle-tied)
   - Start/end types (dropdown)
   - Notes (prenote, note, postnote)
   - Alert toggle + type
-  - Events list (add/remove/edit)
-- [ ] Drag sortie on timeline to move
-- [ ] Resize sortie to adjust duration
+  - Markers list (add/remove/edit)
+- [ ] Drag event on timeline to move
+- [ ] Resize event to adjust duration
 
-### 5.4 Sortie Connections
-- [ ] Connect sorties by snapping
+### 5.4 Event Connections
+- [ ] Connect events by snapping
 - [ ] Visual connection indicator (line or color)
-- [ ] Drag connected sortie → whole chain moves
+- [ ] Drag connected event → whole chain moves
 - [ ] Click connection point → modify connection
   - Keyboard modifiers:
     - No modifier: move just this connection
     - Shift: move everything to the right
     - Ctrl: move everything to the left
 
-### 5.5 Event Management
-- [ ] Add event to sortie
-- [ ] Edit event timing/symbol/annotations
-- [ ] Template system for common events
-- [ ] Handle fixed-time events when sortie moves
-  - If event time outside sortie range: warn + ask for new time or delete
+### 5.5 Marker Management
+- [ ] Add marker to event
+- [ ] Edit marker timing/symbol/annotations
+- [ ] Template system for common markers
+- [ ] Handle fixed-time markers when event moves
+  - If marker time outside event range: warn + ask for new time or delete
 
 ### 5.6 Cycle Management
 - [ ] Add cycle (start/end times)
 - [ ] Edit cycle times
-- [ ] Delete cycle (nullify sortie references)
+- [ ] Delete cycle (nullify event references in markers)
 - [ ] Scale cycle (non-linear time view)
   - Modal for scale factor
   - Keyboard shortcut mode (Ctrl+drag?)
@@ -347,7 +365,7 @@ Strict layout matching current app:
 - [ ] Left/right arrows to move by day
 - [ ] Add new day
 - [ ] Delete day
-- [ ] Copy/paste sorties between days
+- [ ] Copy/paste events between days
 - [ ] Copy entire day
 
 ---
@@ -385,15 +403,15 @@ Strict layout matching current app:
 - [ ] SLAP calculations
 - [ ] Migration function
 - [ ] State management (undo/redo)
-- [ ] Sortie connection logic
-- [ ] Event timing calculations
+- [ ] Event connection logic
+- [ ] Marker timing calculations
 
 ### 7.4 E2E Tests (Cypress)
 - [ ] Create new plan
 - [ ] Add squadron
-- [ ] Create sortie (graphical)
-- [ ] Edit sortie
-- [ ] Connect sorties
+- [ ] Create event (graphical)
+- [ ] Edit event
+- [ ] Connect events
 - [ ] Add cycle
 - [ ] Export to PDF
 - [ ] Save/load from browser
