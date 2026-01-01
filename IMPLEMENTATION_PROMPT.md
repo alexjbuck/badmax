@@ -56,9 +56,15 @@ Work through the migration plan sequentially:
 
 **Phase 0: Project Setup** (START HERE)
 1. Initialize fresh Vite + Svelte + TypeScript project
-2. Configure for minimal bundle size (tree-shaking, code splitting)
-3. Set up development tooling (ESLint, Prettier, Vitest, Cypress)
-4. Add instant-loading skeleton UI (<100ms initial render)
+2. Configure for aggressive code splitting and lazy loading
+3. **Implement progressive loading architecture:**
+   - index.html with inline skeleton + CSS (<10kb)
+   - Loading animation (spinner or progress bar)
+   - Bootstrap script that shows "Loading BadMax..." immediately
+   - Dynamic imports for: canvas library, PDF, SLAP, heavy components
+4. Set up development tooling (ESLint, Prettier, Vitest, Cypress)
+5. Configure bundle analysis (vite-bundle-visualizer)
+6. Set up slow connection testing (Chrome DevTools throttling)
 
 **Phase 1: Data Model**
 1. Implement TypeScript interfaces from MIGRATION_PLAN.md
@@ -71,11 +77,19 @@ Work through the migration plan sequentially:
 ### Key Requirements
 
 **Bundle Size (CRITICAL):**
-- Target: <500kb gzipped initial bundle
-- Users are on ships with terrible bandwidth
-- Minimize dependencies ruthlessly
-- Use dynamic imports for non-critical features
-- Show loading state instantly (minimal bootstrap bundle)
+- **Primary target: <50kb gzipped for initial render with loading indicator**
+- **Secondary target: <500kb gzipped total after all features loaded**
+- Users are on ships with 10kbps connections (seen in operational environments)
+- At 10kbps: 50kb = 5 seconds to show loading indicator
+- **Never show blank white screen** - users will think it's frozen
+- Progressive loading strategy:
+  1. Inline skeleton HTML + CSS (<10kb) - instant render
+  2. Bootstrap script (~5-10kb) - show "Loading BadMax..."
+  3. Core app (<30-40kb) - Svelte + minimal UI
+  4. Lazy load everything else: canvas, PDF, SLAP, features
+- Minimize dependencies ruthlessly (evaluate every import)
+- Use dynamic imports for all heavy features
+- Test on simulated 10kbps, 50kbps, 100kbps connections
 
 **Offline Capability:**
 - Embed SLAP calculations (sunrise/sunset/moon phase)
@@ -293,8 +307,14 @@ interface Marker {
 ## Success Criteria
 
 - [ ] All old v2 JSON files load successfully
-- [ ] Bundle size <500kb gzipped
-- [ ] Loading state appears in <100ms
+- [ ] **Bundle size targets met:**
+  - Initial render: <50kb gzipped (skeleton + loading indicator)
+  - Total app: <500kb gzipped (all features loaded)
+- [ ] **Loading experience on 10kbps connection:**
+  - Loading indicator visible within 5 seconds
+  - No blank white screen at any point
+  - Progress indication throughout load (can continue downloading after indicator shown)
+  - PWA caching works (subsequent loads instant)
 - [ ] Visual parity with old app (exact layout)
 - [ ] All workflows documented in MIGRATION_PLAN.md work
 - [ ] 90%+ code coverage on business logic (unit tests)
@@ -309,14 +329,17 @@ interface Marker {
 
 1. **Don't over-engineer:** Keep it simple, only implement what's in the plan
 2. **Don't add features:** Stick to the spec, ask before adding anything new
-3. **Don't ignore bundle size:** Check after every dependency added
-4. **Don't skip tests:** Write tests as you go, not at the end
-5. **Don't break migration:** All old files must load
-6. **Don't change terminology:** Event = timeline bar, Marker = symbol
-7. **Don't use circular references:** Use ID lookups only
-8. **Don't skip validation:** Validate all user inputs
-9. **Don't forget offline:** No external API calls for core features
-10. **Don't rush rendering:** Canvas performance is critical with 100+ events
+3. **Don't ignore bundle size:** Check after every dependency added - 50kb initial is STRICT
+4. **Don't add dependencies without lazy loading:** Default to dynamic imports
+5. **Don't show blank screens:** Always show loading indicators immediately
+6. **Don't skip tests:** Write tests as you go, not at the end
+7. **Don't break migration:** All old files must load
+8. **Don't change terminology:** Event = timeline bar, Marker = symbol
+9. **Don't use circular references:** Use ID lookups only
+10. **Don't skip validation:** Validate all user inputs
+11. **Don't forget offline:** No external API calls for core features
+12. **Don't rush rendering:** Canvas performance is critical with 100+ events
+13. **Don't forget 10kbps users:** Test on slow connections regularly
 
 ## Questions to Ask Before Starting
 

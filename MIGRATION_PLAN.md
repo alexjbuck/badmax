@@ -16,7 +16,11 @@ Migrate BadMax from vanilla JS/Konva to Svelte/Vite with TypeScript, modernizing
   - Has 3x3 text annotation grid around symbol
 
 ## Core Principles
-1. **Bundle size first** - Users on ships with limited bandwidth
+1. **Bundle size first** - Users on ships with limited bandwidth (seen 10kbps)
+   - **<50kb gzipped** initial load (5 seconds @ 10kbps to first render)
+   - Immediate loading indicators (users must see progress, not blank screen)
+   - Progressive loading: skeleton → bootstrap → core app → features
+   - Total app <500kb gzipped after all lazy loads
 2. **Offline capable** - Full SLAP calculation embedded, no external dependencies
 3. **Type safety** - TypeScript throughout
 4. **Testable** - Unit tests for business logic, E2E with Cypress
@@ -28,10 +32,16 @@ Migrate BadMax from vanilla JS/Konva to Svelte/Vite with TypeScript, modernizing
 
 ### 0.1 Svelte/Vite Scaffold
 - [ ] Initialize Vite + Svelte + TypeScript project
-- [ ] Configure Vite for optimal bundle size (tree-shaking, code splitting)
+- [ ] Configure Vite for aggressive code splitting and tree-shaking
 - [ ] Set up path aliases (@/lib, @/components, etc.)
 - [ ] Configure build for offline PWA
-- [ ] Add loading state that appears instantly (minimal bundle)
+- [ ] **Critical: Loading Strategy**
+  - Inline skeleton HTML + CSS (<10kb) - renders instantly
+  - Loading animation (spinner, progress bar, or custom)
+  - Bootstrap script (~5-10kb) - initializes app, shows "Loading BadMax..."
+  - Core app bundle (<30-40kb) - Svelte runtime + minimal UI
+  - Lazy load: Canvas library, PDF, SLAP, heavy features
+  - Target: <50kb gzipped total for initial render with loading indicator
 
 ### 0.2 Development Tooling
 - [ ] ESLint + Prettier for Svelte
@@ -418,11 +428,21 @@ Strict layout matching current app:
 - [ ] Import old JSON file
 
 ### 7.5 Bundle Size Optimization
-- [ ] Code splitting by route
-- [ ] Tree-shake unused code
-- [ ] Minimize dependencies
+- [ ] Code splitting by route and feature
+- [ ] Tree-shake unused code ruthlessly
+- [ ] Minimize dependencies (evaluate every import)
 - [ ] Analyze bundle (vite-bundle-visualizer)
-- [ ] Target: <500kb initial bundle (gzipped)
+- [ ] Dynamic imports for heavy features:
+  - Canvas library (lazy load on first visualization)
+  - PDF export (lazy load when export button clicked)
+  - SLAP calculations (lazy load when location input shown)
+  - Date pickers, modals (lazy load on demand)
+- [ ] **Targets:**
+  - Initial skeleton: <10kb gzipped (instant render)
+  - Bootstrap + core: <50kb gzipped (loading state visible)
+  - Total app: <500kb gzipped (after all features loaded)
+- [ ] Test on simulated slow connections (10kbps, 50kbps, 100kbps)
+- [ ] Verify loading indicators appear <1 second on 10kbps
 
 ---
 
@@ -462,8 +482,13 @@ Strict layout matching current app:
 
 ## Success Criteria
 - [ ] All old JSON files load successfully
-- [ ] Bundle size <500kb (gzipped)
-- [ ] Loading state appears in <100ms
+- [ ] **Bundle size targets met:**
+  - Initial render: <50kb gzipped (skeleton + loading indicator)
+  - Total app: <500kb gzipped (all features loaded)
+- [ ] **Loading experience on 10kbps connection:**
+  - Loading indicator visible within 5 seconds
+  - No blank white screen at any point
+  - Progress indication throughout load
 - [ ] 90%+ code coverage on business logic
 - [ ] All E2E tests pass
 - [ ] Visual parity with old app
