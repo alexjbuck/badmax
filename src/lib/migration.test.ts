@@ -92,7 +92,7 @@ describe('Version Detection', () => {
   })
 
   it('detects v2 format without explicit version', () => {
-    const { version, ...dataWithoutVersion } = sampleV2Data
+    const { version: _version, ...dataWithoutVersion } = sampleV2Data
     expect(detectVersion(dataWithoutVersion)).toBe('v2')
   })
 

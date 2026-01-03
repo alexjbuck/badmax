@@ -20,7 +20,6 @@ import type {
   Event,
   Cycle,
   DayData,
-  SLAPData,
   StartEndType
 } from './types'
 import { toJulianDate, fromJulianDate } from './types'

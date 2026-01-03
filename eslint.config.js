@@ -1,9 +1,31 @@
 import js from '@eslint/js'
 import svelte from 'eslint-plugin-svelte'
+import tseslint from 'typescript-eslint'
+import svelteParser from 'svelte-eslint-parser'
+import tsParser from '@typescript-eslint/parser'
 
 export default [
   js.configs.recommended,
+  ...tseslint.configs.recommended,
   ...svelte.configs['flat/recommended'],
+  {
+    files: ['**/*.svelte'],
+    languageOptions: {
+      parser: svelteParser,
+      parserOptions: {
+        parser: tsParser
+      }
+    }
+  },
+  {
+    files: ['**/*.ts'],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        project: null
+      }
+    }
+  },
   {
     languageOptions: {
       ecmaVersion: 2022,
@@ -26,14 +48,19 @@ export default [
         clearTimeout: 'readonly',
         clearInterval: 'readonly',
         requestAnimationFrame: 'readonly',
+        ResizeObserver: 'readonly',
+        HTMLCanvasElement: 'readonly',
+        CanvasRenderingContext2D: 'readonly'
       }
     },
     rules: {
-      'no-unused-vars': ['warn', {
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['warn', {
         argsIgnorePattern: '^_',
         varsIgnorePattern: '^_'
       }],
-      'no-console': 'off'
+      'no-console': 'off',
+      'svelte/prefer-svelte-reactivity': 'off'  // Using regular Date is fine for static data
     }
   },
   {
@@ -45,7 +72,8 @@ export default [
       'src/libraries/**',
       'src/css/**',
       'public/**',
-      'scripts/**'
+      'scripts/**',
+      '*.config.*'
     ]
   }
 ]
